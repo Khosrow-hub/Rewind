@@ -2,11 +2,7 @@
   "name": "rewind-monorepo",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "web",
-    "server"
-  ],
   "scripts": {
-    "build": "npm run build --workspace=web"
+    "build": "cd web && npm install && npm run build"
   }
 }
