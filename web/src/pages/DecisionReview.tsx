@@ -148,7 +148,7 @@ export function DecisionReview() {
             <div className="mt-8 flex flex-col md:flex-row gap-6 md:gap-12 border-t border-ink/10 pt-6">
               <div>
                 <p className="label">Confidence</p>
-                <p className="mt-1 tracking-widest text-lg text-ink">{confidenceDots(reveal.data!.decision.confidence)}</p>
+                <p className="mt-1 text-lg text-ink font-bold">{reveal.data!.decision.probability}%</p>
               </div>
               <div>
                 <p className="label">Expected outcome</p>

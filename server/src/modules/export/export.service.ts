@@ -26,7 +26,7 @@ export async function exportAll(userId: string) {
       title: d.title,
       reasoning: d.reasoning,
       expectedOutcome: d.expectedOutcome,
-      probability: d.probability, // CHANGED
+      probability: d.probability, // Changed from confidence
       importance: d.importance,
       status: d.status,
       reviewAt: d.reviewAt,
@@ -38,7 +38,7 @@ export async function exportAll(userId: string) {
       assumptions: d.assumptions.map((a) => ({
         description: a.description,
         importance: a.importance,
-        confidence: a.confidence,
+        confidence: a.confidence, // Assumption still uses confidence
         result: a.result,
         resultNote: a.resultNote
       })),
@@ -84,7 +84,7 @@ export async function exportCsv(userId: string): Promise<string> {
     "created_at",
     "title",
     "importance",
-    "probability", // CHANGED
+    "probability", // Changed from confidence
     "chosen_option",
     "expected_outcome",
     "review_at",
@@ -104,7 +104,7 @@ export async function exportCsv(userId: string): Promise<string> {
         d.createdAt.toISOString(),
         csvEscape(d.title),
         d.importance,
-        d.probability, // CHANGED
+        d.probability, // Changed from confidence
         csvEscape(chosen?.label ?? ""),
         csvEscape(d.expectedOutcome),
         d.reviewAt.toISOString(),

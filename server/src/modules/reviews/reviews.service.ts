@@ -62,7 +62,7 @@ export async function revealSnapshot(userId: string, decisionId: string) {
       title: true,
       reasoning: true,
       expectedOutcome: true,
-      probability: true, // CHANGED
+      probability: true, // Changed from confidence
       importance: true,
       snapshotAt: true,
       assumptions: {
@@ -71,7 +71,7 @@ export async function revealSnapshot(userId: string, decisionId: string) {
           id: true,
           description: true,
           importance: true,
-          confidence: true, // Assumption still uses confidence
+          confidence: true,
           verifyAt: true,
           result: true,
           resultNote: true

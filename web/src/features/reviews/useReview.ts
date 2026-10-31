@@ -37,7 +37,7 @@ export type RevealSnapshot = {
   title: string;
   reasoning: string;
   expectedOutcome: string;
-  confidence: number;
+  probability: number; // Changed from confidence
   assumptions: { id: string; description: string }[];
   reviews: { replayChoice: string; replayRevealedAt: string }[];
 };
