@@ -4,58 +4,48 @@ import * as authService from "./auth.service.js";
 import { signupSchema, loginSchema } from "./auth.schema.js";
 
 function setCookie(res: Response, token: string, expiresAt: Date) {
-  const isProd = env.NODE_ENV === "production";
+  // Because Vercel proxies /api, the frontend and backend appear as the same domain.
   res.cookie(env.SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: isProd ? "none" : "lax",
-    secure: isProd,
+    sameSite: "lax",
+    secure: env.NODE_ENV === "production",
     expires: expiresAt,
     path: "/",
-    // If Render gives you a custom domain later, add domain: ".yourdomain.com" here.
   });
 }
 
 function clearCookie(res: Response) {
-  const isProd = env.NODE_ENV === "production";
   res.clearCookie(env.SESSION_COOKIE_NAME, {
     path: "/",
-    sameSite: isProd ? "none" : "lax",
-    secure: isProd
+    sameSite: "lax",
+    secure: env.NODE_ENV === "production",
   });
 }
 
 export async function signup(req: Request, res: Response) {
   const parsed = signupSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input" });
-  }
+  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
   try {
     const user = await authService.signup(parsed.data.email, parsed.data.password);
     const session = await authService.createSession(user.id);
     setCookie(res, session.token, session.expiresAt);
     return res.status(201).json({ user });
   } catch (err) {
-    if (err instanceof Error && err.message === "EMAIL_TAKEN") {
-      return res.status(409).json({ error: "Email already registered" });
-    }
+    if (err instanceof Error && err.message === "EMAIL_TAKEN") return res.status(409).json({ error: "Email already registered" });
     return res.status(500).json({ error: "Server error" });
   }
 }
 
 export async function login(req: Request, res: Response) {
   const parsed = loginSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: "Invalid input" });
-  }
+  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
   try {
     const user = await authService.login(parsed.data.email, parsed.data.password);
     const session = await authService.createSession(user.id);
     setCookie(res, session.token, session.expiresAt);
     return res.json({ user });
   } catch (err) {
-    if (err instanceof Error && err.message === "INVALID_CREDENTIALS") {
-      return res.status(401).json({ error: "Invalid email or password" });
-    }
+    if (err instanceof Error && err.message === "INVALID_CREDENTIALS") return res.status(401).json({ error: "Invalid email or password" });
     return res.status(500).json({ error: "Server error" });
   }
 }

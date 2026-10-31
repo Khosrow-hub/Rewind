@@ -1,6 +1,7 @@
 import { useAuth } from "../features/auth/AuthContext";
 
-const API_BASE = "https://rewind-api-b0t5.onrender.com";
+// Empty string forces it to use the Vercel proxy
+const API_BASE = "";
 
 export function Settings() {
   const { logout } = useAuth();

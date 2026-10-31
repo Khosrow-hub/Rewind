@@ -1,4 +1,5 @@
-const BASE = "https://rewind-api-b0t5.onrender.com";
+// Leave this empty so it uses the current domain (Vercel Proxy)
+const BASE = ""; 
 
 type Options = {
   method?: string;
