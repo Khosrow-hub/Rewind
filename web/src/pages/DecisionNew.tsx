@@ -139,24 +139,25 @@ export function DecisionNew() {
           </div>
 
           <div>
-            <label className="label mb-2 block">Confidence (1 to 5)</label>
+            <label className="label mb-2 block flex justify-between">
+              <span>Probability of success</span>
+              <span className="text-accentHover text-lg">{probability}%</span>
+            </label>
             <input
               type="range"
               min="1"
-              max="5"
+              max="100"
               step="1"
-              value={confidence}
-              onChange={(e) => setConfidence(Number(e.target.value))}
+              value={probability}
+              onChange={(e) => setProbability(Number(e.target.value))}
               className="w-full accent-accent"
             />
             <div className="mt-3 flex justify-between text-xs font-bold text-inkSoft">
-              <span>1 (Guessing)</span>
-              <span>3 (Fairly sure)</span>
-              <span>5 (Certain)</span>
+              <span>1% (Guessing)</span>
+              <span>50% (Coin flip)</span>
+              <span>100% (Certain)</span>
             </div>
           </div>
-        </div>
-
         <div className="bento space-y-6">
           <h2 className="text-xl font-bold tracking-tight">Options</h2>
           

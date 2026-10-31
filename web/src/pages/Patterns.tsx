@@ -43,20 +43,21 @@ export function Patterns() {
             </div>
           </BentoCard>
 
-          {/* CALIBRATION SAMPLE SIZE */}
-          <BentoCard span="third">
-            <p className="label">Calibration</p>
+          {/* BRIER SCORE */}
+          <BentoCard span="third" className="shadow-neu-pressed border-none bg-cream">
+            <p className="label text-accentHover">Brier score</p>
             <div className="mt-4">
-              <p className="stat">
-                {data.sample.enoughForClaims ? "Tracked" : "Building"}
+              <p className="stat text-accentHover">
+                {data.brier.score !== null ? data.brier.score : "--"}
               </p>
-              <p className="stat-note mt-2">
-                {data.sample.reviewedDecisions} reviewed decisions. 
-                {!data.sample.enoughForClaims && " More data needed for reliable claims."}
+              <p className="stat-note mt-1 font-bold">
+                {data.brier.rating}
+              </p>
+              <p className="text-xs text-inkFaint mt-3">
+                Lower is better. 0.0 is perfect prediction.
               </p>
             </div>
           </BentoCard>
-
           {/* CONFIDENCE CALIBRATION BARS */}
           <BentoCard span="full">
             <p className="label mb-6">Confidence vs. Reality</p>
