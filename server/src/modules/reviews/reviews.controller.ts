@@ -70,6 +70,9 @@ export async function create(req: Request, res: Response) {
     if (err instanceof Error && err.message === "ALREADY_REVIEWED") {
       return res.status(409).json({ error: "This decision is already reviewed" });
     }
+    if (err instanceof Error && err.message === "REPLAY_REQUIRED") {
+      return res.status(409).json({ error: "You must submit a replay choice before reviewing" });
+    }
     return res.status(404).json({ error: "Not found" });
   }
 }

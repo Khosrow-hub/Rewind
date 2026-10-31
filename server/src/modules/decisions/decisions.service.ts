@@ -120,12 +120,13 @@ export async function updateDecision(
   if (!existing) throw new Error("NOT_FOUND");
   if (existing.status !== "PENDING") throw new Error("LOCKED");
 
+  // ENFORCE IMMUTABILITY: Only allow updating the title and review date.
+  // Reasoning, expected outcome, and confidence are permanently locked.
   const data: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(input)) {
-    if (value === undefined) continue;
-    if (key === "reviewAt") data[key] = new Date(value as string);
-    else data[key] = value;
-  }
+  if (input.title !== undefined) data.title = input.title;
+  if (input.reviewAt !== undefined) data.reviewAt = new Date(input.reviewAt);
+
+  if (Object.keys(data).length === 0) return existing;
 
   const updated = await prisma.decision.update({
     where: { id },

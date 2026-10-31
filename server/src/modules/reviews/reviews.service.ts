@@ -33,32 +33,16 @@ export async function submitReplayChoice(
   if (!decision) throw new Error("NOT_FOUND");
   if (decision.status !== "PENDING") throw new Error("ALREADY_REVIEWED");
 
-  const pendingInterim = await prisma.decisionReview.findFirst({
-    where: { decisionId, kind: "INTERIM", replayRevealedAt: null },
-    orderBy: { createdAt: "desc" }
-  });
-
-  if (pendingInterim) {
-    await prisma.decisionReview.update({
-      where: { id: pendingInterim.id },
-      data: { replayChoice, replayRevealedAt: new Date() }
-    });
-    return { reviewId: pendingInterim.id };
-  }
-
-  const review = await prisma.decisionReview.create({
+  // Save the replay event
+  await prisma.decisionEvent.create({
     data: {
       decisionId,
-      kind: "INTERIM",
-      replayChoice,
-      replayRevealedAt: new Date(),
-      whatHappened: "",
-      outcomeMet: "PARTIALLY",
-      processSound: "PARTIALLY",
-      wouldDecideAgain: "MAYBE"
+      type: "REPLAY_SUBMITTED",
+      payload: { choice: replayChoice }
     }
   });
-  return { reviewId: review.id };
+
+  return { success: true };
 }
 
 export async function revealSnapshot(userId: string, decisionId: string) {
@@ -84,22 +68,14 @@ export async function revealSnapshot(userId: string, decisionId: string) {
           resultNote: true
         }
       },
-      reviews: {
-        where: { replayRevealedAt: { not: null } },
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: {
-          id: true,
-          kind: true,
-          replayChoice: true,
-          replayRevealedAt: true
-        }
+      events: {
+        where: { type: "REPLAY_SUBMITTED" },
+        take: 1
       }
     }
   });
   if (!decision) throw new Error("NOT_FOUND");
-  const revealable = decision.reviews.length > 0;
-  if (!revealable) throw new Error("REPLAY_REQUIRED");
+  if (decision.events.length === 0) throw new Error("REPLAY_REQUIRED");
   return decision;
 }
 
@@ -114,6 +90,14 @@ export async function createReview(
   });
   if (!decision) throw new Error("NOT_FOUND");
   if (decision.status !== "PENDING") throw new Error("ALREADY_REVIEWED");
+
+  // ENFORCE REPLAY FIRST
+  const replayEvent = await prisma.decisionEvent.findFirst({
+    where: { decisionId, type: "REPLAY_SUBMITTED" }
+  });
+  if (!replayEvent) {
+    throw new Error("REPLAY_REQUIRED");
+  }
 
   const result = await prisma.$transaction(async (tx) => {
     const review = await tx.decisionReview.create({
