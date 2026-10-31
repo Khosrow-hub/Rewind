@@ -7,10 +7,11 @@ function setCookie(res: Response, token: string, expiresAt: Date) {
   const isProd = env.NODE_ENV === "production";
   res.cookie(env.SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: isProd ? "none" : "lax", // "none" is required for cross-domain cookies
-    secure: isProd, // "secure" is required when sameSite is "none"
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd,
     expires: expiresAt,
-    path: "/"
+    path: "/",
+    // If Render gives you a custom domain later, add domain: ".yourdomain.com" here.
   });
 }
 
