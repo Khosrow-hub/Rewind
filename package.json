@@ -1,8 +1,0 @@
-{
-  "name": "rewind-monorepo",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "build": "cd web && npm install && npm run build > build-log.txt 2>&1 || (cat build-log.txt && exit 1)"
-  }
-}
