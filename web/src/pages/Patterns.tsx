@@ -50,43 +50,12 @@ export function Patterns() {
               <p className="stat text-accentHover">
                 {data.brier.score !== null ? data.brier.score : "--"}
               </p>
-              <p className="stat-note mt-1 font-bold">
+              <p className="stat-note mt-1 font-bold text-ink">
                 {data.brier.rating}
               </p>
               <p className="text-xs text-inkFaint mt-3">
                 Lower is better. 0.0 is perfect prediction.
               </p>
-            </div>
-          </BentoCard>
-          {/* CONFIDENCE CALIBRATION BARS */}
-          <BentoCard span="full">
-            <p className="label mb-6">Confidence vs. Reality</p>
-            <div className="space-y-4">
-              {data.calibration.map((c) => (
-                <div key={c.confidence} className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-bold text-inkSoft">Level {c.confidence}</div>
-                  <div className="flex-1 h-10 bg-cream shadow-neu-pressed rounded-xl overflow-hidden relative">
-                    {c.rate !== null && (
-                      <div
-                        className={`h-full transition-all duration-500 rounded-xl ${
-                          c.reliable ? "bg-accent" : "bg-accent/40"
-                        }`}
-                        style={{ width: `${c.rate}%` }}
-                      />
-                    )}
-                  </div>
-                  <div className="w-32 text-sm font-medium text-right text-ink">
-                    {c.rate !== null ? (
-                      <span>
-                        {c.metOutcome} of {c.reviewed} <br />
-                        <span className="text-xs text-inkFaint">({c.rate}%)</span>
-                      </span>
-                    ) : (
-                      <span className="text-inkFaint">No data</span>
-                    )}
-                  </div>
-                </div>
-              ))}
             </div>
           </BentoCard>
 

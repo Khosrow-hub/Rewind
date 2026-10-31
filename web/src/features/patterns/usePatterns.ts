@@ -6,13 +6,10 @@ export type PatternsData = {
     reviewedDecisions: number;
     enoughForClaims: boolean;
   };
-  calibration: {
-    confidence: number;
-    reviewed: number;
-    metOutcome: number;
-    rate: number | null;
-    reliable: boolean;
-  }[];
+  brier: {
+    score: number | null;
+    rating: string;
+  };
   axes: {
     processSound: number;
     outcomeGood: number;
