@@ -13,7 +13,7 @@ export type FullDecision = {
   title: string;
   reasoning: string;
   expectedOutcome: string;
-  confidence: number;
+  probability: number; // Changed
   importance: string;
   status: string;
   reviewAt: string;
@@ -21,7 +21,7 @@ export type FullDecision = {
   options: { id: string; label: string; position: number }[];
   chosenOptionId: string | null;
   tags: { tag: { name: string } }[];
-  assumptions: any[]; // Populated later
+  assumptions: any[]; 
   reviews: {
     id: string;
     kind: "INTERIM" | "FINAL";

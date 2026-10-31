@@ -6,13 +6,13 @@ export type CreateDecisionInput = {
   title: string;
   reasoning: string;
   expectedOutcome: string;
-  confidence: number;
+  probability: number; // Changed from confidence
   importance: Importance;
   options: { label: string }[];
   chosenOptionIndex: number;
   reviewAt: string;
   tags: string[];
-  assumptions?: { description: string }[]; // NEW
+  assumptions?: { description: string }[];
 };
 
 export function useCreateDecision() {
