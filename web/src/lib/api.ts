@@ -27,7 +27,12 @@ export async function api<T>(path: string, opts: Options = {}): Promise<T> {
   if (res.status === 204) return undefined as T;
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch (e) {
+    throw new ApiError(res.status, `Server returned an invalid response: ${text.substring(0, 50)}`);
+  }
 
   if (!res.ok) {
     const message =
