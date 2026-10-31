@@ -38,7 +38,7 @@ export type RevealSnapshot = {
   reasoning: string;
   expectedOutcome: string;
   confidence: number;
-  assumptions: any[];
+  assumptions: { id: string; description: string }[];
   reviews: { replayChoice: string; replayRevealedAt: string }[];
 };
 
@@ -59,6 +59,7 @@ export function useSubmitReview(decisionId: string) {
       processSound: "YES" | "PARTIALLY" | "NO";
       wouldDecideAgain: "YES" | "MAYBE" | "NO";
       lesson?: string;
+      assumptionResults?: { assumptionId: string; result: "TRUE" | "FALSE" | "PARTIAL" }[];
     }) =>
       api(`/api/decisions/${decisionId}/review`, {
         method: "POST",
