@@ -1,4 +1,4 @@
-const BASE = "http://localhost:4000";
+const BASE = "https://rewind-api-b0t5.onrender.com";
 
 type Options = {
   method?: string;

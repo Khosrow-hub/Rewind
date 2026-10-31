@@ -1,7 +1,6 @@
 import { useAuth } from "../features/auth/AuthContext";
 
-// Ensure this matches the BASE URL in lib/api.ts
-const API_BASE = "http://localhost:4000";
+const API_BASE = "https://rewind-api-b0t5.onrender.com";
 
 export function Settings() {
   const { logout } = useAuth();
