@@ -2,14 +2,12 @@ import { prisma } from "../../db/prisma.js";
 
 const MIN_SAMPLE_FOR_CLAIM = 5;
 
-type Bucket = { confidence: number; reviewed: number; metOutcome: number };
-
 export async function getPatterns(userId: string) {
   const decisions = await prisma.decision.findMany({
     where: { userId, status: "REVIEWED" },
     select: {
       id: true,
-      confidence: true,
+      probability: true,
       importance: true,
       tags: { select: { tag: { select: { name: true } } } },
       reviews: {
@@ -27,44 +25,39 @@ export async function getPatterns(userId: string) {
 
   const reviewed = decisions.filter((d) => d.reviews.length > 0);
 
-  const buckets: Bucket[] = [1, 2, 3, 4, 5].map((c) => ({
-    confidence: c,
-    reviewed: 0,
-    metOutcome: 0
-  }));
-  for (const d of reviewed) {
-    const bucket = buckets[d.confidence - 1];
-    bucket.reviewed += 1;
-    if (d.reviews[0].outcomeMet === "FULLY") bucket.metOutcome += 1;
-  }
-
+  // Calculate Brier Score
+  let brierSum = 0;
+  let brierCount = 0;
+  
   let processSoundCount = 0;
   let outcomeGoodCount = 0;
   let gapCount = 0;
+
+  const tagStats = new Map<string, { reviewed: number; notFully: number }>();
+
   for (const d of reviewed) {
     const r = d.reviews[0];
-    if (r.processSound === "YES") processSoundCount += 1;
-    if (r.outcomeMet === "FULLY") outcomeGoodCount += 1;
-    if (r.processSound === "YES" && r.outcomeMet !== "FULLY") gapCount += 1;
-  }
+    
+    // Convert outcome to 1 or 0 for Brier
+    const actualOutcome = r.outcomeMet === "FULLY" ? 1 : 0;
+    const predictedProb = d.probability / 100;
+    
+    brierSum += Math.pow(predictedProb - actualOutcome, 2);
+    brierCount++;
 
-  const tagStats = new Map<
-    string,
-    { reviewed: number; notFully: number; processFlawed: number }
-  >();
-  for (const d of reviewed) {
+    if (r.processSound === "YES") processSoundCount++;
+    if (r.outcomeMet === "FULLY") outcomeGoodCount++;
+    if (r.processSound === "YES" && r.outcomeMet !== "FULLY") gapCount++;
+
     for (const t of d.tags) {
-      const entry = tagStats.get(t.tag.name) ?? {
-        reviewed: 0,
-        notFully: 0,
-        processFlawed: 0
-      };
+      const entry = tagStats.get(t.tag.name) ?? { reviewed: 0, notFully: 0 };
       entry.reviewed += 1;
-      if (d.reviews[0].outcomeMet !== "FULLY") entry.notFully += 1;
-      if (d.reviews[0].processSound !== "YES") entry.processFlawed += 1;
+      if (r.outcomeMet !== "FULLY") entry.notFully += 1;
       tagStats.set(t.tag.name, entry);
     }
   }
+
+  const brierScore = brierCount > 0 ? (brierSum / brierCount) : null;
 
   const blindSpots = [...tagStats.entries()]
     .map(([tag, s]) => ({
@@ -81,21 +74,19 @@ export async function getPatterns(userId: string) {
     (d) => d.reviews[0].wouldDecideAgain === "NO"
   ).length;
 
-  const total = reviewed.length;
-  const enoughForClaims = total >= MIN_SAMPLE_FOR_CLAIM;
-
   return {
     sample: {
-      reviewedDecisions: total,
-      enoughForClaims
+      reviewedDecisions: reviewed.length,
+      enoughForClaims: reviewed.length >= MIN_SAMPLE_FOR_CLAIM
     },
-    calibration: buckets.map((b) => ({
-      confidence: b.confidence,
-      reviewed: b.reviewed,
-      metOutcome: b.metOutcome,
-      rate: b.reviewed > 0 ? Math.round((b.metOutcome / b.reviewed) * 100) : null,
-      reliable: b.reviewed >= 2
-    })),
+    brier: {
+      score: brierScore !== null ? Number(brierScore.toFixed(3)) : null,
+      // Brier score interpretation
+      rating: brierScore === null ? "No data" :
+              brierScore < 0.1 ? "Excellent" :
+              brierScore < 0.2 ? "Good" :
+              brierScore < 0.3 ? "Fair" : "Needs work"
+    },
     axes: {
       processSound: processSoundCount,
       outcomeGood: outcomeGoodCount,
@@ -104,7 +95,7 @@ export async function getPatterns(userId: string) {
     blindSpots,
     regret: {
       wouldNotDecideAgain: regret,
-      rate: total > 0 ? Math.round((regret / total) * 100) : null
+      rate: reviewed.length > 0 ? Math.round((regret / reviewed.length) * 100) : null
     }
   };
 }

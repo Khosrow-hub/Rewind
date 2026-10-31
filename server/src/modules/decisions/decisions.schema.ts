@@ -6,7 +6,7 @@ export const createDecisionSchema = z.object({
   title: z.string().min(1).max(200),
   reasoning: z.string().min(1).max(5000),
   expectedOutcome: z.string().min(1).max(2000),
-  confidence: z.number().int().min(1).max(5),
+  probability: z.number().int().min(1).max(100), // CHANGED
   importance: importanceEnum,
   options: z
     .array(z.object({ label: z.string().min(1).max(200) }))

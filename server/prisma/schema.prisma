@@ -96,7 +96,7 @@ model Decision {
   title           String
   reasoning       String
   expectedOutcome String
-  confidence      Int            // 1 to 5
+  probability     Int            // 1 to 100
   importance      Importance
   status          DecisionStatus @default(PENDING)
 

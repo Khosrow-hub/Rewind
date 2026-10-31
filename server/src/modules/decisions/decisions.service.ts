@@ -17,7 +17,7 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
         title: input.title,
         reasoning: input.reasoning,
         expectedOutcome: input.expectedOutcome,
-        confidence: input.confidence,
+        probability: input.probability, // CHANGED
         importance: input.importance,
         reviewAt: new Date(input.reviewAt),
         options: {
@@ -40,7 +40,7 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
       data: {
         decisionId: created.id,
         type: "DECISION_CREATED",
-        payload: { title: created.title, confidence: created.confidence }
+        payload: { title: created.title, probability: created.probability }
       }
     });
 
@@ -64,7 +64,7 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
             decisionId: created.id,
             description: a.description,
             importance: input.importance,
-            confidence: input.confidence,
+            confidence: 50, // Default assumption confidence
           }
         });
         await tx.decisionEvent.create({
@@ -120,7 +120,6 @@ export async function getDecision(userId: string, id: string) {
   });
   if (!d) throw new Error("NOT_FOUND");
 
-  // SECURITY: Hide reasoning and chosen option if replay has not been submitted
   const replayEvent = d.events.find((e) => e.type === "REPLAY_SUBMITTED");
   const isRevealed = !!replayEvent || d.status === "REVIEWED";
 
