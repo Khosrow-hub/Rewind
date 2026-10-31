@@ -4,24 +4,22 @@
 
 @layer base {
   :root {
-    --color-bg: #FCF0DA;        /* Original cream */
-    --color-text: #4C4541;      /* Original ink */
+    --color-bg: #FCF0DA;
+    --color-text: #4C4541;
     --color-line: rgba(76,69,65,0.12);
     --color-text-soft: rgba(76,69,65,0.62);
     --color-text-faint: rgba(76,69,65,0.38);
   }
 
   .dark {
-    --color-bg: #1E201E;        /* New dark background */
-    --color-text: #ECDFCC;      /* New light text */
+    --color-bg: #1E201E;
+    --color-text: #ECDFCC;
     --color-line: rgba(236,223,204,0.12);
     --color-text-soft: rgba(236,223,204,0.62);
     --color-text-faint: rgba(236,223,204,0.38);
   }
 
-  html,
-  body,
-  #root {
+  html, body, #root {
     height: 100%;
   }
 
@@ -44,10 +42,9 @@
 @layer components {
   .bento {
     @apply bg-cream border border-line rounded-card shadow-card dark:shadow-none;
-    @apply p-card;
+    @apply p-5 md:p-card; /* Responsive padding! */
   }
 
-  /* In dark mode, bento cards use the slightly lighter dark tone (#3C3D37) */
   .dark .bento {
     background-color: #3C3D37; 
   }
@@ -64,15 +61,15 @@
   }
 
   .stat {
-    @apply text-4xl font-semibold tracking-tight text-ink;
+    @apply text-3xl md:text-4xl font-semibold tracking-tight text-ink;
   }
 
   .stat-note {
-    @apply text-sm text-inkSoft;
+    @apply text-xs md:text-sm text-inkSoft;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-pill px-5 py-2.5;
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-4 py-2 md:px-5 md:py-2.5;
     @apply text-sm font-medium transition-all duration-150;
   }
   
@@ -91,15 +88,21 @@
   }
 
   .field {
-    @apply w-full rounded-xl border border-line px-4 py-3 text-sm text-ink;
+    @apply w-full rounded-xl border border-line px-3 py-2.5 md:px-4 md:py-3 text-sm text-ink;
     @apply placeholder:text-inkFaint;
-    @apply bg-white/40 dark:bg-[#1E201E]/60; /* Darker input fields in dark mode */
+    @apply bg-white/40 dark:bg-[#1E201E]/60;
   }
   .field:focus {
     @apply border-ink outline-none ring-0;
   }
 }
 
-.no-emoji {
-  font-variant-emoji: text;
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

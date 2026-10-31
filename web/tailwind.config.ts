@@ -6,14 +6,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Base tokens that change based on theme
         cream: "var(--color-bg)",
         ink: "var(--color-text)",
         line: "var(--color-line)",
         inkSoft: "var(--color-text-soft)",
         inkFaint: "var(--color-text-faint)",
-        
-        // Accents stay the same in both modes
         amber: "#F2C46A",
         olive: "#AEAC78",
       },
@@ -43,7 +40,7 @@ const config: Config = {
       },
       spacing: {
         gutter: "24px",
-        card: "28px"
+        card: "20px",
       }
     }
   },
