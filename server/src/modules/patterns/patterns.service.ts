@@ -7,7 +7,7 @@ export async function getPatterns(userId: string) {
     where: { userId, status: "REVIEWED" },
     select: {
       id: true,
-      probability: true,
+      probability: true, // CHANGED FROM CONFIDENCE
       importance: true,
       tags: { select: { tag: { select: { name: true } } } },
       reviews: {
@@ -81,7 +81,6 @@ export async function getPatterns(userId: string) {
     },
     brier: {
       score: brierScore !== null ? Number(brierScore.toFixed(3)) : null,
-      // Brier score interpretation
       rating: brierScore === null ? "No data" :
               brierScore < 0.1 ? "Excellent" :
               brierScore < 0.2 ? "Good" :
