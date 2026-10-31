@@ -17,4 +17,5 @@ if (!parsed.success) {
   process.exit(1);
 }
 
-export const env = parsed.data;
+// The non-null assertion (!) tells TypeScript the data is definitely here.
+export const env = parsed.data!;
