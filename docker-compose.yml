@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rewind
+      POSTGRES_PASSWORD: rewind
+      POSTGRES_DB: rewind
+    ports:
+      - "5432:5432"
+    volumes:
+      - rewind_pgdata:/var/lib/postgresql/data
+
+volumes:
+  rewind_pgdata:

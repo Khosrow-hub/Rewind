@@ -1,0 +1,264 @@
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------
+// USER
+// ---------------------------------------------------------------
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  passwordHash  String
+  emailVerified Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  decisions     Decision[]
+  tags          Tag[]
+  sessions      Session[]
+
+  @@index([email])
+}
+
+// ---------------------------------------------------------------
+// SESSION (cookie based auth, short lived)
+// ---------------------------------------------------------------
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  tokenHash    String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ---------------------------------------------------------------
+// TAG
+// ---------------------------------------------------------------
+model Tag {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  color     String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  decisions DecisionTag[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model DecisionTag {
+  decisionId String
+  tagId      String
+
+  decision   Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([decisionId, tagId])
+  @@index([tagId])
+}
+
+// ---------------------------------------------------------------
+// DECISION
+// The original snapshot fields (title, reasoning, confidence,
+// expectedOutcome, importance) are written once and never updated.
+// Corrections live in Correction rows.
+// ---------------------------------------------------------------
+enum Importance {
+  LOW
+  MEDIUM
+  HIGH
+  LIFE_CHANGING
+}
+
+enum DecisionStatus {
+  PENDING
+  REVIEWED
+  ABANDONED
+}
+
+model Decision {
+  id              String         @id @default(cuid())
+  userId          String
+  title           String
+  reasoning       String
+  expectedOutcome String
+  confidence      Int            // 1 to 5
+  importance      Importance
+  status          DecisionStatus @default(PENDING)
+
+  chosenOptionId  String?
+
+  reviewAt        DateTime       // the final review date
+  snapshotAt      DateTime       @default(now())
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  reviewedAt      DateTime?
+
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  options         DecisionOption[]
+  assumptions     Assumption[]
+  reviews         DecisionReview[]
+  events          DecisionEvent[]
+  tags            DecisionTag[]
+  corrections     Correction[]
+
+  @@index([userId, status])
+  @@index([userId, reviewAt])
+}
+
+// ---------------------------------------------------------------
+// DECISION OPTION
+// ---------------------------------------------------------------
+model DecisionOption {
+  id         String   @id @default(cuid())
+  decisionId String
+  label      String
+  position   Int
+  createdAt  DateTime @default(now())
+
+  decision   Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId])
+  @@unique([decisionId, position])
+}
+
+// ---------------------------------------------------------------
+// ASSUMPTION
+// ---------------------------------------------------------------
+enum AssumptionResult {
+  UNVERIFIED
+  TRUE
+  FALSE
+  PARTIAL
+}
+
+model Assumption {
+  id              String           @id @default(cuid())
+  decisionId      String
+  description     String
+  importance      Importance
+  confidence      Int              // 1 to 5
+  verifyAt        DateTime?
+  result          AssumptionResult @default(UNVERIFIED)
+  resultNote      String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  decision        Decision         @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId])
+}
+
+// ---------------------------------------------------------------
+// DECISION REVIEW
+// Two separate axes: outcome and process.
+// kind INTERIM or FINAL.
+// ---------------------------------------------------------------
+enum ReviewKind {
+  INTERIM
+  FINAL
+}
+
+enum OutcomeMet {
+  FULLY
+  PARTIALLY
+  NOT_AT_ALL
+}
+
+enum ProcessSound {
+  YES
+  PARTIALLY
+  NO
+}
+
+enum WouldDecideAgain {
+  YES
+  MAYBE
+  NO
+}
+
+model DecisionReview {
+  id                String            @id @default(cuid())
+  decisionId        String
+  kind              ReviewKind
+  scheduledFor      DateTime?
+
+  // replay first: what the user chose before seeing the original
+  replayChoice      String?
+  replayRevealedAt  DateTime?
+
+  whatHappened      String
+  outcomeMet        OutcomeMet
+  processSound      ProcessSound
+  wouldDecideAgain  WouldDecideAgain
+  lesson            String?
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  decision          Decision          @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId, kind])
+  @@index([decisionId, createdAt])
+}
+
+// ---------------------------------------------------------------
+// CORRECTION
+// Append only. Never overwrite. Each row records one edit.
+// ---------------------------------------------------------------
+model Correction {
+  id          String   @id @default(cuid())
+  decisionId  String
+  field       String
+  oldValue    String
+  newValue    String
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  decision    Decision @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId, createdAt])
+}
+
+// ---------------------------------------------------------------
+// DECISION EVENT
+// The replay timeline. Every meaningful action appends here.
+// ---------------------------------------------------------------
+enum EventType {
+  DECISION_CREATED
+  DECISION_UPDATED
+  OPTION_ADDED
+  ASSUMPTION_ADDED
+  ASSUMPTION_RESOLVED
+  INTERIM_REVIEW_ADDED
+  FINAL_REVIEW_ADDED
+  CORRECTION_ADDED
+  STATUS_CHANGED
+}
+
+model DecisionEvent {
+  id         String    @id @default(cuid())
+  decisionId String
+  type       EventType
+  payload    Json
+  createdAt  DateTime  @default(now())
+
+  decision   Decision  @relation(fields: [decisionId], references: [id], onDelete: Cascade)
+
+  @@index([decisionId, createdAt])
+}
