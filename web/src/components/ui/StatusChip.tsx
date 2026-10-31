@@ -4,7 +4,7 @@ import { reviewStateClass, reviewStateLabel } from "../../lib/format";
 export function StatusChip({ state }: { state: ReviewState }) {
   return (
     <span
-      className={`inline-flex items-center rounded-pill px-2.5 py-1 text-2xs font-medium uppercase tracking-wider ${reviewStateClass(
+      className={`inline-flex items-center rounded-pill bg-cream px-3 py-1 text-2xs font-bold uppercase tracking-widest ${reviewStateClass(
         state
       )}`}
     >

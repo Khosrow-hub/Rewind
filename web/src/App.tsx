@@ -20,8 +20,6 @@ export default function App() {
     }
   }, [isDark]);
 
-  // We pass the toggle function down via context or just a global event
-  // For simplicity, we will just use a custom event to toggle it from the nav
   useEffect(() => {
     const handleToggle = () => setIsDark((prev) => !prev);
     window.addEventListener("toggle-theme", handleToggle);

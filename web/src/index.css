@@ -3,24 +3,28 @@
 @tailwind utilities;
 
 @layer base {
+  /* LIGHT MODE: Warm Stone */
   :root {
-    --color-bg: #FCF0DA;
-    --color-text: #4C4541;
-    --color-line: rgba(76,69,65,0.12);
-    --color-text-soft: rgba(76,69,65,0.62);
-    --color-text-faint: rgba(76,69,65,0.38);
-    --shadow-light: #FFFFFF;
-    --shadow-dark: #D4C4B0;
+    --color-bg: #F0EFEA;       /* A soft, warm off-white */
+    --color-text: #2C3E50;     /* Deep navy/slate for contrast */
+    --color-text-soft: #5D6D7E;
+    --color-text-faint: #AAB7B8;
+    --color-line: transparent; /* Neumorphism doesn't use lines */
+    
+    --shadow-light: #FFFFFF;   /* Pure white for the top-left light */
+    --shadow-dark: #D1D0C9;    /* A slightly darker version of the bg for bottom-right */
   }
 
+  /* DARK MODE: Deep Forest */
   .dark {
-    --color-bg: #1E201E;
-    --color-text: #ECDFCC;
-    --color-line: rgba(236,223,204,0.1);
-    --color-text-soft: rgba(236,223,204,0.6);
-    --color-text-faint: rgba(236,223,204,0.35);
-    --shadow-light: #3C3D37;
-    --shadow-dark: #121312;
+    --color-bg: #1E201E;       /* Your deep dark green/grey */
+    --color-text: #ECDFCC;     /* Your light cream */
+    --color-text-soft: #A3B18A;
+    --color-text-faint: #697565;
+    --color-line: transparent;
+
+    --shadow-light: #2C302C;   /* A lighter dark green for top-left */
+    --shadow-dark: #121312;    /* Almost black for bottom-right */
   }
 
   html, body, #root {
@@ -28,83 +32,77 @@
   }
 
   body {
-    @apply bg-cream text-ink font-sans antialiased transition-colors duration-200;
-    font-feature-settings: "cv11", "ss01";
-  }
-
-  ::selection {
-    @apply bg-amber/50 text-ink;
+    @apply bg-cream text-ink font-sans antialiased transition-colors duration-300;
   }
 
   *:focus-visible {
-    outline: 2px solid var(--color-text);
-    outline-offset: 2px;
-    border-radius: 6px;
+    outline: 2px solid var(--color-text-soft);
+    outline-offset: 4px;
+    border-radius: 8px;
   }
 }
 
 @layer components {
-  /* Use plain CSS for the shadows to avoid Tailwind compile errors */
+  /* THE SOFT UI CARD */
   .bento {
-    @apply bg-cream rounded-card border border-transparent;
-    padding: 1.25rem; /* 20px for mobile */
-    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+    @apply bg-cream rounded-card shadow-neu-flat border-none;
+    @apply p-6 md:p-card;
   }
 
-  @media (min-width: 768px) {
-    .bento {
-      padding: 28px; /* p-card for desktop */
-    }
-  }
-
+  /* CARDS THAT CLICK */
   .bento-interactive {
     @apply bento transition-all duration-200 cursor-pointer;
   }
   .bento-interactive:hover {
-    transform: translateY(-2px);
+    @apply shadow-neu-sm;
+    transform: translateY(2px);
   }
   .bento-interactive:active {
-    transform: translateY(0);
-    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+    @apply shadow-neu-pressed;
+    transform: translateY(4px);
   }
 
   .label {
-    @apply text-2xs uppercase tracking-wider text-inkSoft font-medium;
+    @apply text-xs uppercase tracking-widest text-inkSoft font-bold;
   }
 
   .stat {
-    @apply text-3xl md:text-4xl font-bold tracking-tight text-ink;
+    @apply text-4xl md:text-5xl font-extrabold tracking-tighter text-ink;
   }
 
   .stat-note {
-    @apply text-xs md:text-sm text-inkSoft;
+    @apply text-sm text-inkSoft font-medium mt-1;
   }
 
+  /* BUTTONS */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-pill px-5 py-2.5 text-sm font-medium transition-all duration-150;
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-6 py-3 text-sm font-bold transition-all duration-150;
   }
   
   .btn-primary {
-    @apply btn text-ink;
-    background: linear-gradient(135deg, var(--color-bg), var(--shadow-dark));
-    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+    @apply btn bg-cream text-ink shadow-neu-flat;
+  }
+  .btn-primary:hover {
+    @apply shadow-neu-sm text-accentHover;
   }
   .btn-primary:active {
-    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    @apply shadow-neu-sm-pressed;
   }
   
   .btn-ghost {
-    @apply btn text-ink bg-cream;
-    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+    @apply btn text-inkSoft shadow-neu-sm bg-cream;
+  }
+  .btn-ghost:hover {
+    @apply text-ink shadow-neu-flat;
   }
   .btn-ghost:active {
-    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+    @apply shadow-neu-sm-pressed;
   }
 
+  /* INPUT FIELDS (Looks carved into the page) */
   .field {
-    @apply w-full rounded-xl bg-cream px-4 py-3 text-sm text-ink border-none;
+    @apply w-full rounded-xl bg-cream px-5 py-3 text-sm text-ink border-none shadow-neu-pressed;
     @apply placeholder:text-inkFaint;
-    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   }
   .field:focus {
     @apply outline-none ring-0;

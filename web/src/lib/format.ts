@@ -36,11 +36,11 @@ export function reviewStateLabel(s: ReviewState): string {
 
 export function reviewStateClass(s: ReviewState): string {
   const map: Record<ReviewState, string> = {
-    pending: "bg-ink/5 text-inkSoft border border-line",
-    upcoming: "bg-olive/25 text-ink border border-olive/40",
-    due: "bg-amber/40 text-ink border border-amber",
-    overdue: "bg-ink/10 text-ink border border-ink/40",
-    reviewed: "bg-ink/5 text-inkFaint border border-line"
+    pending: "text-inkSoft shadow-neu-sm",
+    upcoming: "text-blue-500 shadow-neu-sm",
+    due: "text-accentHover shadow-neu-sm",
+    overdue: "text-red-500 shadow-neu-sm",
+    reviewed: "text-green-600 shadow-neu-sm"
   };
   return map[s];
 }
