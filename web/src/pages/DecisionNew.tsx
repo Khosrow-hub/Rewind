@@ -24,7 +24,7 @@ export function DecisionNew() {
   const [title, setTitle] = useState("");
   const [reasoning, setReasoning] = useState("");
   const [expectedOutcome, setExpectedOutcome] = useState("");
-  const [confidence, setConfidence] = useState(3);
+  const [probability, setProbability] = useState(50); // Changed to 50 default
   const [importance, setImportance] = useState<Importance>("MEDIUM");
   const [reviewDays, setReviewDays] = useState(90);
 
@@ -63,7 +63,7 @@ export function DecisionNew() {
         title,
         reasoning,
         expectedOutcome,
-        confidence,
+        probability, // Changed from confidence
         importance,
         options: validOptions.map(o => ({ label: o.label })),
         chosenOptionIndex: chosenIndex,
@@ -158,6 +158,8 @@ export function DecisionNew() {
               <span>100% (Certain)</span>
             </div>
           </div>
+        </div>
+
         <div className="bento space-y-6">
           <h2 className="text-xl font-bold tracking-tight">Options</h2>
           
