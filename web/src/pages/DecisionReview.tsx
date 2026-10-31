@@ -7,7 +7,6 @@ import {
   useSubmitReview
 } from "../features/reviews/useReview";
 import { useQueryClient } from "@tanstack/react-query";
-import { confidenceDots } from "../lib/format";
 
 export function DecisionReview() {
   const { id } = useParams<{ id: string }>();
@@ -147,7 +146,7 @@ export function DecisionReview() {
             </p>
             <div className="mt-8 flex flex-col md:flex-row gap-6 md:gap-12 border-t border-ink/10 pt-6">
               <div>
-                <p className="label">Confidence</p>
+                <p className="label">Probability</p>
                 <p className="mt-1 text-lg text-ink font-bold">{reveal.data!.decision.probability}%</p>
               </div>
               <div>
