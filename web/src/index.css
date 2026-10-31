@@ -3,30 +3,24 @@
 @tailwind utilities;
 
 @layer base {
-  /* LIGHT MODE (Cream) */
   :root {
     --color-bg: #FCF0DA;
     --color-text: #4C4541;
     --color-line: rgba(76,69,65,0.12);
     --color-text-soft: rgba(76,69,65,0.62);
     --color-text-faint: rgba(76,69,65,0.38);
-    
-    /* Shadows for light mode */
     --shadow-light: #FFFFFF;
-    --shadow-dark: #D4C4B0; /* A darker cream to create depth */
+    --shadow-dark: #D4C4B0;
   }
 
-  /* DARK MODE (Your palette) */
   .dark {
-    --color-bg: #1E201E;       /* Darkest */
-    --color-text: #ECDFCC;     /* Lightest */
+    --color-bg: #1E201E;
+    --color-text: #ECDFCC;
     --color-line: rgba(236,223,204,0.1);
     --color-text-soft: rgba(236,223,204,0.6);
     --color-text-faint: rgba(236,223,204,0.35);
-    
-    /* Shadows for dark mode */
-    --shadow-light: #3C3D37;   /* The mid-tone from your palette */
-    --shadow-dark: #121312;    /* Even darker than the background to create depth */
+    --shadow-light: #3C3D37;
+    --shadow-dark: #121312;
   }
 
   html, body, #root {
@@ -50,22 +44,28 @@
 }
 
 @layer components {
-  /* THE SOFT UI CARD */
+  /* Use plain CSS for the shadows to avoid Tailwind compile errors */
   .bento {
-    @apply bg-cream rounded-card shadow-neu-raised border border-transparent;
-    @apply p-5 md:p-card;
+    @apply bg-cream rounded-card border border-transparent;
+    padding: 1.25rem; /* 20px for mobile */
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
   }
 
-  /* Interactive cards press down slightly on hover/click */
+  @media (min-width: 768px) {
+    .bento {
+      padding: 28px; /* p-card for desktop */
+    }
+  }
+
   .bento-interactive {
     @apply bento transition-all duration-200 cursor-pointer;
   }
   .bento-interactive:hover {
-    /* Slight lift, then press down */
-    @apply -translate-y-1;
+    transform: translateY(-2px);
   }
   .bento-interactive:active {
-    @apply translate-y-0 shadow-neu-pressed;
+    transform: translateY(0);
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   }
 
   .label {
@@ -80,32 +80,31 @@
     @apply text-xs md:text-sm text-inkSoft;
   }
 
-  /* BUTTONS */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-pill px-5 py-2.5;
-    @apply text-sm font-medium transition-all duration-150;
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-5 py-2.5 text-sm font-medium transition-all duration-150;
   }
   
   .btn-primary {
-    @apply btn text-ink shadow-neu-button;
-    /* Gradient to simulate physical light */
+    @apply btn text-ink;
     background: linear-gradient(135deg, var(--color-bg), var(--shadow-dark));
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
   }
   .btn-primary:active {
-    @apply shadow-neu-pressed;
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
   }
   
   .btn-ghost {
-    @apply btn text-ink shadow-neu-button bg-cream;
+    @apply btn text-ink bg-cream;
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
   }
   .btn-ghost:active {
-    @apply shadow-neu-pressed;
+    box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
   }
 
-  /* INPUT FIELDS */
   .field {
-    @apply w-full rounded-xl bg-cream px-4 py-3 text-sm text-ink shadow-neu-inset border-none;
+    @apply w-full rounded-xl bg-cream px-4 py-3 text-sm text-ink border-none;
     @apply placeholder:text-inkFaint;
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
   }
   .field:focus {
     @apply outline-none ring-0;
