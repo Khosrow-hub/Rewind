@@ -2,8 +2,7 @@ import { Link } from "react-router-dom";
 import type { DecisionSummary, DecisionOption, DecisionTag } from "../../lib/api";
 import {
   daysUntilLabel,
-  importanceLabel,
-  confidenceDots
+  importanceLabel
 } from "../../lib/format";
 import { StatusChip } from "../../components/ui/StatusChip";
 
@@ -39,9 +38,9 @@ export function DecisionCard({ decision }: { decision: DecisionSummary }) {
           </dd>
         </div>
         <div>
-          <dt className="label">Confidence</dt>
-          <dd className="mt-1 text-sm tracking-widest text-ink">
-            {confidenceDots(decision.confidence)}
+          <dt className="label">Probability</dt>
+          <dd className="mt-1 text-sm font-bold text-accentHover">
+            {decision.probability}%
           </dd>
         </div>
         <div>

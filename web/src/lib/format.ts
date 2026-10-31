@@ -44,8 +44,3 @@ export function reviewStateClass(s: ReviewState): string {
   };
   return map[s];
 }
-
-export function confidenceDots(n: number): string {
-  const safe = Math.max(1, Math.min(5, n));
-  return "●".repeat(safe) + "○".repeat(5 - safe);
-}

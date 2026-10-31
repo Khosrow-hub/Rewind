@@ -70,7 +70,7 @@ export type DecisionSummary = {
   title: string;
   reasoning: string;
   expectedOutcome: string;
-  confidence: number;
+  probability: number; // Changed from confidence
   importance: Importance;
   status: "PENDING" | "REVIEWED" | "ABANDONED";
   chosenOptionId: string | null;
