@@ -92,6 +92,16 @@ export function DecisionReview() {
     );
   }
 
+  // Split the expected outcome and pre-mortem for display
+  let displayOutcome = reveal.data?.decision.expectedOutcome || "";
+  let displayPreMortem = "";
+  
+  if (displayOutcome.includes("--- PRE-MORTEM ---")) {
+    const parts = displayOutcome.split("--- PRE-MORTEM ---");
+    displayOutcome = parts[0].trim();
+    displayPreMortem = parts[1].trim();
+  }
+
   return (
     <div className="mx-auto max-w-3xl">
       <header className="mb-8">
@@ -144,6 +154,7 @@ export function DecisionReview() {
             <p className="mt-3 text-lg leading-relaxed font-medium text-ink">
               {reveal.data!.decision.reasoning}
             </p>
+            
             <div className="mt-8 flex flex-col md:flex-row gap-6 md:gap-12 border-t border-ink/10 pt-6">
               <div>
                 <p className="label">Probability</p>
@@ -151,9 +162,16 @@ export function DecisionReview() {
               </div>
               <div>
                 <p className="label">Expected outcome</p>
-                <p className="mt-1 text-ink font-medium">{reveal.data!.decision.expectedOutcome}</p>
+                <p className="mt-1 text-ink font-medium">{displayOutcome}</p>
               </div>
             </div>
+
+            {displayPreMortem && (
+              <div className="mt-6 bg-accent/10 p-4 rounded-xl border border-accent/20">
+                <p className="label text-accentHover">Your Pre-mortem</p>
+                <p className="mt-1 text-sm font-medium text-ink">{displayPreMortem}</p>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleAutopsySubmit} className="bento space-y-8">

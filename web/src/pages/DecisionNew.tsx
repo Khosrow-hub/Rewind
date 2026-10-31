@@ -24,7 +24,8 @@ export function DecisionNew() {
   const [title, setTitle] = useState("");
   const [reasoning, setReasoning] = useState("");
   const [expectedOutcome, setExpectedOutcome] = useState("");
-  const [probability, setProbability] = useState(50); // Changed to 50 default
+  const [preMortem, setPreMortem] = useState(""); // NEW
+  const [probability, setProbability] = useState(50);
   const [importance, setImportance] = useState<Importance>("MEDIUM");
   const [reviewDays, setReviewDays] = useState(90);
 
@@ -58,12 +59,17 @@ export function DecisionNew() {
       .filter((a) => a.description.trim().length > 0)
       .map((a) => ({ description: a.description }));
 
+    // COMBINE EXPECTED OUTCOME AND PRE-MORTEM
+    const combinedOutcome = preMortem.trim() 
+      ? `${expectedOutcome}\n\n--- PRE-MORTEM ---\n${preMortem}`
+      : expectedOutcome;
+
     mutate(
       {
         title,
         reasoning,
-        expectedOutcome,
-        probability, // Changed from confidence
+        expectedOutcome: combinedOutcome, // Send combined
+        probability,
         importance,
         options: validOptions.map(o => ({ label: o.label })),
         chosenOptionIndex: chosenIndex,
@@ -223,6 +229,18 @@ export function DecisionNew() {
               placeholder="Salary up thirty percent and real architecture experience."
               value={expectedOutcome}
               onChange={(e) => setExpectedOutcome(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="label mb-2 block text-accentHover">Pre-mortem (Optional)</label>
+            <p className="text-xs text-inkSoft mb-2">Imagine it is 6 months from now and this decision failed. What went wrong?</p>
+            <textarea
+              className="field resize-none"
+              rows={2}
+              placeholder="The startup ran out of money, or I hated the management style."
+              value={preMortem}
+              onChange={(e) => setPreMortem(e.target.value)}
             />
           </div>
 

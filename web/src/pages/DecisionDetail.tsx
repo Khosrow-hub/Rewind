@@ -13,6 +13,15 @@ export function DecisionDetail() {
   const chosen = d.options.find((o) => o.id === d.chosenOptionId);
   const finalReview = d.reviews.find((r) => r.kind === "FINAL");
 
+  let displayOutcome = d.expectedOutcome || "";
+  let displayPreMortem = "";
+  
+  if (displayOutcome.includes("--- PRE-MORTEM ---")) {
+    const parts = displayOutcome.split("--- PRE-MORTEM ---");
+    displayOutcome = parts[0].trim();
+    displayPreMortem = parts[1].trim();
+  }
+
   return (
     <div className="mx-auto max-w-4xl">
       <header className="mb-8 flex items-start justify-between">
@@ -55,9 +64,16 @@ export function DecisionDetail() {
               </div>
               <div>
                 <p className="label">Expected outcome</p>
-                <p className="mt-1 text-sm font-medium">{d.expectedOutcome}</p>
+                <p className="mt-1 text-sm font-medium">{displayOutcome}</p>
               </div>
             </div>
+
+            {displayPreMortem && (
+              <div className="mt-6 bg-accent/10 p-4 rounded-xl border border-accent/20">
+                <p className="label text-accentHover">Pre-mortem</p>
+                <p className="mt-1 text-sm font-medium text-ink">{displayPreMortem}</p>
+              </div>
+            )}
           </div>
 
           {finalReview && (
@@ -98,7 +114,7 @@ export function DecisionDetail() {
           <div className="bento h-full">
             <h2 className="label mb-4">Replay timeline</h2>
             <div className="space-y-4 border-l border-ink/20 ml-2 pl-4">
-              {d.events.map((evt) => (
+              {d.events.map((evt: any) => (
                 <div key={evt.id} className="relative">
                   <div className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-accent" />
                   <p className="text-xs font-bold text-inkSoft">
