@@ -12,6 +12,7 @@ export type CreateDecisionInput = {
   chosenOptionIndex: number;
   reviewAt: string;
   tags: string[];
+  assumptions?: { description: string }[]; // NEW
 };
 
 export function useCreateDecision() {

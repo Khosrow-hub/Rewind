@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   useReviewContext,
@@ -8,6 +8,8 @@ import {
 } from "../features/reviews/useReview";
 import { useQueryClient } from "@tanstack/react-query";
 import { confidenceDots } from "../lib/format";
+
+type AssumptionResult = { id: string; result: "TRUE" | "FALSE" | "PARTIAL" };
 
 export function DecisionReview() {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +29,20 @@ export function DecisionReview() {
   const [processSound, setProcessSound] = useState<"YES" | "PARTIALLY" | "NO">("YES");
   const [wouldDecideAgain, setWouldDecideAgain] = useState<"YES" | "MAYBE" | "NO">("YES");
   const [lesson, setLesson] = useState("");
+  
+  // State for assumption resolution
+  const [assumptionResults, setAssumptionResults] = useState<Record<string, "TRUE" | "FALSE" | "PARTIAL">>({});
+
+  const assumptions = reveal.data?.decision.assumptions || [];
+
+  // Pre-fill assumption state when data loads
+  useEffect(() => {
+    if (assumptions.length > 0 && Object.keys(assumptionResults).length === 0) {
+      const initial: Record<string, any> = {};
+      assumptions.forEach(a => { initial[a.id] = "TRUE"; });
+      setAssumptionResults(initial);
+    }
+  }, [assumptions]);
 
   if (ctx.isLoading || reveal.isLoading) {
     return <p className="text-sm text-inkSoft">Loading</p>;
@@ -56,6 +72,12 @@ export function DecisionReview() {
 
   function handleAutopsySubmit(e: React.FormEvent) {
     e.preventDefault();
+    
+    const formattedResults = Object.entries(assumptionResults).map(([id, result]) => ({
+      assumptionId: id,
+      result
+    }));
+
     submitReview.mutate(
       {
         kind: "FINAL",
@@ -63,7 +85,8 @@ export function DecisionReview() {
         outcomeMet,
         processSound,
         wouldDecideAgain,
-        lesson
+        lesson,
+        assumptionResults: formattedResults
       },
       {
         onSuccess: () => {
@@ -154,7 +177,7 @@ export function DecisionReview() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="label mb-2 block">Did the expected outcome happen?</label>
                 <div className="space-y-2">
@@ -189,6 +212,36 @@ export function DecisionReview() {
                 </div>
               </div>
             </div>
+
+            {/* NEW: Assumption Resolution */}
+            {assumptions.length > 0 && (
+              <div className="border-t border-line pt-6">
+                <label className="label mb-4 block text-ink">Your assumptions</label>
+                <div className="space-y-4">
+                  {assumptions.map((a: any) => (
+                    <div key={a.id} className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-ink/5 p-3 rounded-lg">
+                      <p className="text-sm text-ink flex-1">{a.description}</p>
+                      <div className="flex gap-2">
+                        {(["TRUE", "PARTIAL", "FALSE"] as const).map((val) => (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => setAssumptionResults(prev => ({ ...prev, [a.id]: val }))}
+                            className={`px-3 py-1 text-xs rounded-pill transition-colors ${
+                              assumptionResults[a.id] === val 
+                                ? "bg-ink text-cream" 
+                                : "bg-white/40 text-inkSoft hover:bg-white/60"
+                            }`}
+                          >
+                            {val === "TRUE" ? "True" : val === "PARTIAL" ? "Partial" : "False"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="label mb-1 block">Would you decide the same again?</label>

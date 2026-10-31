@@ -14,6 +14,9 @@ const defaultDays = (importance: Importance) => {
   return map[importance];
 };
 
+type LocalOption = { id: string; label: string };
+type LocalAssumption = { id: string; description: string };
+
 export function DecisionNew() {
   const navigate = useNavigate();
   const { mutate, isPending, error } = useCreateDecision();
@@ -25,12 +28,15 @@ export function DecisionNew() {
   const [importance, setImportance] = useState<Importance>("MEDIUM");
   const [reviewDays, setReviewDays] = useState(90);
 
-  const [options, setOptions] = useState([
-    { label: "" },
-    { label: "" }
+  const [options, setOptions] = useState<LocalOption[]>([
+    { id: crypto.randomUUID(), label: "" },
+    { id: crypto.randomUUID(), label: "" }
   ]);
-  const [chosenIndex, setChosenIndex] = useState(0);
+  const [chosenId, setChosenId] = useState<string | null>(null);
   const [tags, setTags] = useState("");
+  
+  // NEW: Assumptions state
+  const [assumptions, setAssumptions] = useState<LocalAssumption[]>([]);
 
   function handleImportanceChange(val: Importance) {
     setImportance(val);
@@ -40,12 +46,20 @@ export function DecisionNew() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    
     const validOptions = options.filter((o) => o.label.trim().length > 0);
     if (validOptions.length < 2) return;
-    if (chosenIndex >= validOptions.length) return;
+    
+    const chosenIndex = validOptions.findIndex((o) => o.id === chosenId);
+    if (chosenIndex === -1) return; 
 
     const reviewAt = new Date();
     reviewAt.setDate(reviewAt.getDate() + reviewDays);
+
+    // Filter out empty assumptions
+    const validAssumptions = assumptions
+      .filter((a) => a.description.trim().length > 0)
+      .map((a) => ({ description: a.description }));
 
     mutate(
       {
@@ -54,13 +68,14 @@ export function DecisionNew() {
         expectedOutcome,
         confidence,
         importance,
-        options: validOptions,
+        options: validOptions.map(o => ({ label: o.label })),
         chosenOptionIndex: chosenIndex,
         reviewAt: reviewAt.toISOString(),
         tags: tags
           .split(",")
           .map((t) => t.trim())
-          .filter(Boolean)
+          .filter(Boolean),
+        assumptions: validAssumptions // Pass assumptions to the hook
       },
       {
         onSuccess: () => navigate("/decisions")
@@ -107,7 +122,7 @@ export function DecisionNew() {
 
           <div>
             <label className="label mb-1 block">Importance</label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {(["LOW", "MEDIUM", "HIGH", "LIFE_CHANGING"] as Importance[]).map(
                 (val) => (
                   <button
@@ -150,23 +165,24 @@ export function DecisionNew() {
         <div className="bento space-y-5">
           <h2 className="text-lg font-semibold tracking-tight">Options</h2>
           
-          {options.map((opt, i) => (
-            <div key={i} className="flex items-center gap-3">
+          {options.map((opt) => (
+            <div key={opt.id} className="flex items-center gap-3">
               <input
                 type="radio"
                 name="chosen"
-                checked={chosenIndex === i}
-                onChange={() => setChosenIndex(i)}
+                checked={chosenId === opt.id}
+                onChange={() => setChosenId(opt.id)}
                 className="h-4 w-4 accent-ink"
               />
               <input
-                required={i < 2}
+                required={options.indexOf(opt) < 2}
                 className="field flex-1"
-                placeholder={`Option ${i + 1}`}
+                placeholder={`Option ${options.indexOf(opt) + 1}`}
                 value={opt.label}
                 onChange={(e) => {
                   const next = [...options];
-                  next[i].label = e.target.value;
+                  const index = next.findIndex(o => o.id === opt.id);
+                  next[index].label = e.target.value;
                   setOptions(next);
                 }}
               />
@@ -174,8 +190,8 @@ export function DecisionNew() {
                 <button
                   type="button"
                   onClick={() => {
-                    setOptions(options.filter((_, idx) => idx !== i));
-                    if (chosenIndex === i) setChosenIndex(0);
+                    setOptions(options.filter((o) => o.id !== opt.id));
+                    if (chosenId === opt.id) setChosenId(null);
                   }}
                   className="text-sm text-inkSoft hover:text-ink"
                 >
@@ -190,7 +206,7 @@ export function DecisionNew() {
 
           <button
             type="button"
-            onClick={() => setOptions([...options, { label: "" }])}
+            onClick={() => setOptions([...options, { id: crypto.randomUUID(), label: "" }])}
             className="text-sm font-medium text-ink hover:underline"
           >
             Add option
@@ -213,7 +229,7 @@ export function DecisionNew() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label mb-1 block">Review in (days)</label>
               <input
@@ -235,6 +251,47 @@ export function DecisionNew() {
               />
             </div>
           </div>
+        </div>
+
+        {/* SECTION 4: Assumptions (NEW) */}
+        <div className="bento space-y-5">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">Assumptions</h2>
+            <p className="text-xs text-inkSoft mt-1">
+              What must be true for this decision to succeed? (Optional, but highly recommended)
+            </p>
+          </div>
+          
+          {assumptions.map((a) => (
+            <div key={a.id} className="flex items-center gap-3">
+              <input
+                className="field flex-1"
+                placeholder="e.g. The company has at least 12 months of runway"
+                value={a.description}
+                onChange={(e) => {
+                  const next = [...assumptions];
+                  const index = next.findIndex(x => x.id === a.id);
+                  next[index].description = e.target.value;
+                  setAssumptions(next);
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setAssumptions(assumptions.filter((x) => x.id !== a.id))}
+                className="text-sm text-inkSoft hover:text-ink"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() => setAssumptions([...assumptions, { id: crypto.randomUUID(), description: "" }])}
+            className="text-sm font-medium text-ink hover:underline"
+          >
+            Add assumption
+          </button>
         </div>
 
         {error && (
