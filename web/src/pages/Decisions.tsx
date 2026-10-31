@@ -42,16 +42,19 @@ export function Decisions() {
       )}
 
       {!isLoading && !isError && data && data.decisions.length === 0 && (
-        <div className="mt-10 rounded-card border border-line bg-white/40 p-card">
-          <h2 className="text-lg font-semibold tracking-tight">
+        <div className="mt-10 bento shadow-neu-pressed p-10 text-center flex flex-col items-center justify-center">
+          <div className="h-16 w-16 rounded-full bg-cream shadow-neu-flat flex items-center justify-center mb-6">
+            <span className="text-2xl font-bold text-accent">+</span>
+          </div>
+          <h2 className="text-xl font-bold tracking-tight text-ink">
             No decisions yet
           </h2>
-          <p className="mt-2 text-sm text-inkSoft">
+          <p className="mt-3 text-sm text-inkSoft max-w-md mx-auto leading-relaxed">
             Every record starts with a decision. Write it down once, set a
             review date, and Rewind brings it back to you when the outcome is
             known. That is the loop.
           </p>
-          <Link to="/decisions/new" className="btn-primary mt-6 inline-flex">
+          <Link to="/decisions/new" className="btn-primary mt-8">
             Create your first decision
           </Link>
         </div>

@@ -34,8 +34,6 @@ export function DecisionNew() {
   ]);
   const [chosenId, setChosenId] = useState<string | null>(null);
   const [tags, setTags] = useState("");
-  
-  // NEW: Assumptions state
   const [assumptions, setAssumptions] = useState<LocalAssumption[]>([]);
 
   function handleImportanceChange(val: Importance) {
@@ -56,7 +54,6 @@ export function DecisionNew() {
     const reviewAt = new Date();
     reviewAt.setDate(reviewAt.getDate() + reviewDays);
 
-    // Filter out empty assumptions
     const validAssumptions = assumptions
       .filter((a) => a.description.trim().length > 0)
       .map((a) => ({ description: a.description }));
@@ -75,7 +72,7 @@ export function DecisionNew() {
           .split(",")
           .map((t) => t.trim())
           .filter(Boolean),
-        assumptions: validAssumptions // Pass assumptions to the hook
+        assumptions: validAssumptions
       },
       {
         onSuccess: () => navigate("/decisions")
@@ -86,19 +83,18 @@ export function DecisionNew() {
   return (
     <div className="mx-auto max-w-3xl">
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">New decision</h1>
+        <h1 className="text-2xl font-bold tracking-tight">New decision</h1>
         <p className="mt-1 text-sm text-inkSoft">
           Record the bet. Rewind will resurface it on the review date.
         </p>
       </header>
 
       <form onSubmit={handleSubmit} className="space-y-gutter">
-        {/* SECTION 1: The Situation */}
-        <div className="bento space-y-5">
-          <h2 className="text-lg font-semibold tracking-tight">The situation</h2>
+        <div className="bento space-y-6">
+          <h2 className="text-xl font-bold tracking-tight">The situation</h2>
           
           <div>
-            <label className="label mb-1 block">What are you deciding?</label>
+            <label className="label mb-2 block">What are you deciding?</label>
             <input
               required
               className="field"
@@ -109,7 +105,7 @@ export function DecisionNew() {
           </div>
 
           <div>
-            <label className="label mb-1 block">Reasoning</label>
+            <label className="label mb-2 block">Reasoning</label>
             <textarea
               required
               className="field resize-none"
@@ -121,18 +117,18 @@ export function DecisionNew() {
           </div>
 
           <div>
-            <label className="label mb-1 block">Importance</label>
-            <div className="flex gap-2 flex-wrap">
+            <label className="label mb-2 block">Importance</label>
+            <div className="flex gap-3 flex-wrap">
               {(["LOW", "MEDIUM", "HIGH", "LIFE_CHANGING"] as Importance[]).map(
                 (val) => (
                   <button
                     key={val}
                     type="button"
                     onClick={() => handleImportanceChange(val)}
-                    className={`rounded-pill px-4 py-2 text-sm transition-colors ${
+                    className={`rounded-pill px-5 py-2.5 text-sm font-bold transition-all ${
                       importance === val
-                        ? "bg-ink text-cream"
-                        : "bg-ink/5 text-inkSoft hover:bg-ink/10"
+                        ? "shadow-neu-pressed text-accentHover bg-cream"
+                        : "bg-cream shadow-neu-flat text-inkSoft hover:text-ink"
                     }`}
                   >
                     {importanceLabel(val)}
@@ -143,7 +139,7 @@ export function DecisionNew() {
           </div>
 
           <div>
-            <label className="label mb-1 block">Confidence (1 to 5)</label>
+            <label className="label mb-2 block">Confidence (1 to 5)</label>
             <input
               type="range"
               min="1"
@@ -151,9 +147,9 @@ export function DecisionNew() {
               step="1"
               value={confidence}
               onChange={(e) => setConfidence(Number(e.target.value))}
-              className="w-full accent-ink"
+              className="w-full accent-accent"
             />
-            <div className="mt-2 flex justify-between text-xs text-inkSoft">
+            <div className="mt-3 flex justify-between text-xs font-bold text-inkSoft">
               <span>1 (Guessing)</span>
               <span>3 (Fairly sure)</span>
               <span>5 (Certain)</span>
@@ -161,18 +157,17 @@ export function DecisionNew() {
           </div>
         </div>
 
-        {/* SECTION 2: Options */}
-        <div className="bento space-y-5">
-          <h2 className="text-lg font-semibold tracking-tight">Options</h2>
+        <div className="bento space-y-6">
+          <h2 className="text-xl font-bold tracking-tight">Options</h2>
           
           {options.map((opt) => (
-            <div key={opt.id} className="flex items-center gap-3">
+            <div key={opt.id} className="flex items-center gap-4">
               <input
                 type="radio"
                 name="chosen"
                 checked={chosenId === opt.id}
                 onChange={() => setChosenId(opt.id)}
-                className="h-4 w-4 accent-ink"
+                className="h-5 w-5 accent-accent"
               />
               <input
                 required={options.indexOf(opt) < 2}
@@ -193,32 +188,31 @@ export function DecisionNew() {
                     setOptions(options.filter((o) => o.id !== opt.id));
                     if (chosenId === opt.id) setChosenId(null);
                   }}
-                  className="text-sm text-inkSoft hover:text-ink"
+                  className="text-sm font-bold text-inkSoft hover:text-accentHover"
                 >
                   Remove
                 </button>
               )}
             </div>
           ))}
-          <p className="text-xs text-inkSoft">
+          <p className="text-xs font-medium text-inkSoft mt-2">
             Select the radio button next to the option you chose.
           </p>
 
           <button
             type="button"
             onClick={() => setOptions([...options, { id: crypto.randomUUID(), label: "" }])}
-            className="text-sm font-medium text-ink hover:underline"
+            className="text-sm font-bold text-ink hover:text-accentHover"
           >
             Add option
           </button>
         </div>
 
-        {/* SECTION 3: Expectations */}
-        <div className="bento space-y-gutter">
-          <h2 className="text-lg font-semibold tracking-tight">Expectations</h2>
+        <div className="bento space-y-6">
+          <h2 className="text-xl font-bold tracking-tight">Expectations</h2>
           
           <div>
-            <label className="label mb-1 block">What do you expect will happen?</label>
+            <label className="label mb-2 block">What do you expect will happen?</label>
             <textarea
               required
               className="field resize-none"
@@ -229,9 +223,9 @@ export function DecisionNew() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="label mb-1 block">Review in (days)</label>
+              <label className="label mb-2 block">Review in (days)</label>
               <input
                 type="number"
                 required
@@ -242,7 +236,7 @@ export function DecisionNew() {
               />
             </div>
             <div>
-              <label className="label mb-1 block">Tags (comma separated)</label>
+              <label className="label mb-2 block">Tags (comma separated)</label>
               <input
                 className="field"
                 placeholder="career, finance"
@@ -253,17 +247,16 @@ export function DecisionNew() {
           </div>
         </div>
 
-        {/* SECTION 4: Assumptions (NEW) */}
-        <div className="bento space-y-5">
+        <div className="bento space-y-6">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight">Assumptions</h2>
-            <p className="text-xs text-inkSoft mt-1">
+            <h2 className="text-xl font-bold tracking-tight">Assumptions</h2>
+            <p className="text-xs font-medium text-inkSoft mt-1">
               What must be true for this decision to succeed? (Optional, but highly recommended)
             </p>
           </div>
           
           {assumptions.map((a) => (
-            <div key={a.id} className="flex items-center gap-3">
+            <div key={a.id} className="flex items-center gap-4">
               <input
                 className="field flex-1"
                 placeholder="e.g. The company has at least 12 months of runway"
@@ -278,7 +271,7 @@ export function DecisionNew() {
               <button
                 type="button"
                 onClick={() => setAssumptions(assumptions.filter((x) => x.id !== a.id))}
-                className="text-sm text-inkSoft hover:text-ink"
+                className="text-sm font-bold text-inkSoft hover:text-accentHover"
               >
                 Remove
               </button>
@@ -288,19 +281,19 @@ export function DecisionNew() {
           <button
             type="button"
             onClick={() => setAssumptions([...assumptions, { id: crypto.randomUUID(), description: "" }])}
-            className="text-sm font-medium text-ink hover:underline"
+            className="text-sm font-bold text-ink hover:text-accentHover"
           >
             Add assumption
           </button>
         </div>
 
         {error && (
-          <p className="text-sm text-ink">
+          <p className="text-sm font-bold text-red-500">
             {error instanceof Error ? error.message : "Could not save decision"}
           </p>
         )}
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-4 pt-4">
           <button
             type="button"
             onClick={() => navigate("/decisions")}

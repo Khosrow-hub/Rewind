@@ -13,16 +13,16 @@ export function Patterns() {
   return (
     <div>
       <header className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight">Patterns</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Patterns</h1>
         <p className="mt-1 text-sm text-inkSoft">
           Insights derived from {data.sample.reviewedDecisions} reviewed decisions.
         </p>
       </header>
 
       {noData ? (
-        <div className="bento text-center py-16">
-          <h2 className="text-lg font-semibold tracking-tight">Not enough data yet</h2>
-          <p className="mt-2 text-sm text-inkSoft max-w-md mx-auto">
+        <div className="bento shadow-neu-pressed bg-cream text-center py-16 px-6">
+          <h2 className="text-xl font-bold tracking-tight">Not enough data yet</h2>
+          <p className="mt-3 text-sm text-inkSoft max-w-md mx-auto leading-relaxed">
             Patterns unlock as you close the loop. Log a decision, wait for the review date,
             and complete the autopsy to see your calibration.
           </p>
@@ -30,13 +30,13 @@ export function Patterns() {
       ) : (
         <BentoGrid>
           {/* HEADLINE STAT: The Anti-Outcome Bias Metric */}
-                    <BentoCard span="twoThirds" className="bg-[#1E201E] border-[#3C3D37]">
-            <p className="label text-[#ECDFCC]/60">Decision quality</p>
-            <div className="mt-4 flex items-baseline gap-4">
-              <p className="text-5xl font-semibold tracking-tight text-[#ECDFCC]">
+          <BentoCard span="twoThirds" className="shadow-neu-pressed border-none bg-cream">
+            <p className="label text-accentHover">Decision quality</p>
+            <div className="mt-4 flex flex-col md:flex-row md:items-baseline gap-4">
+              <p className="text-5xl font-extrabold tracking-tighter text-accentHover">
                 {data.axes.goodProcessBadOutcome}
               </p>
-              <p className="text-sm text-[#ECDFCC]/80 max-w-xs leading-relaxed">
+              <p className="text-sm font-medium text-inkSoft max-w-xs leading-relaxed">
                 Times you made a sound decision but the outcome did not fully land. 
                 A good process with a bad outcome is still a good decision.
               </p>
@@ -50,7 +50,7 @@ export function Patterns() {
               <p className="stat">
                 {data.sample.enoughForClaims ? "Tracked" : "Building"}
               </p>
-              <p className="stat-note mt-1">
+              <p className="stat-note mt-2">
                 {data.sample.reviewedDecisions} reviewed decisions. 
                 {!data.sample.enoughForClaims && " More data needed for reliable claims."}
               </p>
@@ -63,18 +63,18 @@ export function Patterns() {
             <div className="space-y-4">
               {data.calibration.map((c) => (
                 <div key={c.confidence} className="flex items-center gap-4">
-                  <div className="w-24 text-sm text-inkSoft">Level {c.confidence}</div>
-                  <div className="flex-1 h-8 bg-ink/5 rounded-md overflow-hidden relative">
+                  <div className="w-24 text-sm font-bold text-inkSoft">Level {c.confidence}</div>
+                  <div className="flex-1 h-10 bg-cream shadow-neu-pressed rounded-xl overflow-hidden relative">
                     {c.rate !== null && (
                       <div
-                        className={`h-full transition-all duration-500 ${
-                          c.reliable ? "bg-amber" : "bg-olive/50"
+                        className={`h-full transition-all duration-500 rounded-xl ${
+                          c.reliable ? "bg-accent" : "bg-accent/40"
                         }`}
                         style={{ width: `${c.rate}%` }}
                       />
                     )}
                   </div>
-                  <div className="w-32 text-sm text-right">
+                  <div className="w-32 text-sm font-medium text-right text-ink">
                     {c.rate !== null ? (
                       <span>
                         {c.metOutcome} of {c.reviewed} <br />
@@ -101,12 +101,12 @@ export function Patterns() {
                 {data.blindSpots.map((b) => (
                   <div key={b.tag} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium capitalize">{b.tag}</p>
-                      <p className="text-xs text-inkSoft">
+                      <p className="text-sm font-bold capitalize text-ink">{b.tag}</p>
+                      <p className="text-xs text-inkSoft mt-1">
                         {b.notFully} of {b.reviewed} did not fully land
                       </p>
                     </div>
-                    <div className="text-lg font-semibold text-ink">{b.rate}%</div>
+                    <div className="text-xl font-bold text-accentHover">{b.rate}%</div>
                   </div>
                 ))}
               </div>
@@ -118,7 +118,7 @@ export function Patterns() {
             <p className="label mb-4">Regret rate</p>
             <div className="flex items-baseline gap-2">
               <p className="stat">{data.regret.rate ?? 0}%</p>
-              <p className="text-sm text-inkSoft">would not decide the same again</p>
+              <p className="text-sm font-medium text-inkSoft">would not decide the same again</p>
             </div>
             <p className="mt-4 text-xs text-inkFaint">
               Based on {data.sample.reviewedDecisions} reviews.

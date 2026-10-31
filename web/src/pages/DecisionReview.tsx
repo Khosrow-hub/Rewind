@@ -46,10 +46,10 @@ export function DecisionReview() {
 
   if (ctx.isError || !ctx.data) {
     return (
-      <div className="bento bg-white/50">
-        <h2 className="text-lg font-semibold text-ink">Decision not found</h2>
+      <div className="bento bg-cream shadow-neu-pressed p-10 mt-10 text-center">
+        <h2 className="text-xl font-bold text-ink">Decision not found</h2>
         <p className="mt-2 text-sm text-inkSoft">It may have been deleted or already reviewed.</p>
-        <Link to="/decisions" className="btn-ghost mt-4 inline-flex">Back to decisions</Link>
+        <Link to="/decisions" className="btn-primary mt-6 inline-flex">Back to decisions</Link>
       </div>
     );
   }
@@ -96,36 +96,36 @@ export function DecisionReview() {
   return (
     <div className="mx-auto max-w-3xl">
       <header className="mb-8">
-        <p className="label text-amber">Review phase</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">{ctx.data.context.title}</h1>
+        <p className="label text-accentHover">Review phase</p>
+        <h1 className="mt-2 text-3xl font-bold tracking-tight">{ctx.data.context.title}</h1>
       </header>
 
       {!isRevealed && (
         <div className="space-y-gutter">
-          <div className="bento bg-amber/10 border-amber/30">
-            <h2 className="text-lg font-semibold tracking-tight text-ink">
+          <div className="bento bg-cream shadow-neu-flat">
+            <h2 className="text-lg font-bold tracking-tight text-ink">
               What would you choose today?
             </h2>
-            <p className="mt-2 text-sm text-inkSoft">
+            <p className="mt-2 text-sm text-inkSoft leading-relaxed">
               To prevent memory bias, your original reasoning is hidden until you make a choice.
             </p>
           </div>
 
           <form onSubmit={handleReplaySubmit} className="bento space-y-4">
             {ctx.data.context.options.map((opt) => (
-              <label key={opt.id} className="flex items-center gap-3 cursor-pointer">
+              <label key={opt.id} className="flex items-center gap-4 cursor-pointer p-3 rounded-xl hover:shadow-neu-sm transition-all">
                 <input
                   type="radio"
                   name="replay"
                   value={opt.label}
                   checked={replayChoice === opt.label}
                   onChange={(e) => setReplayChoice(e.target.value)}
-                  className="h-4 w-4 accent-ink"
+                  className="h-5 w-5 accent-accent"
                 />
-                <span className="text-base text-ink">{opt.label}</span>
+                <span className="text-base font-medium text-ink">{opt.label}</span>
               </label>
             ))}
-            <div className="pt-4">
+            <div className="pt-6">
               <button
                 type="submit"
                 disabled={!replayChoice || submitReplay.isPending}
@@ -140,29 +140,31 @@ export function DecisionReview() {
 
       {isRevealed && (
         <div className="space-y-gutter">
-          <div className="bento bg-ink text-cream">
-            <p className="label text-cream/60">Your original reasoning</p>
-            <p className="mt-2 text-lg leading-relaxed">{reveal.data!.decision.reasoning}</p>
-            <div className="mt-6 flex gap-8 text-sm">
+          <div className="bento shadow-neu-pressed bg-cream border-none">
+            <p className="label text-accentHover">Your original reasoning</p>
+            <p className="mt-3 text-lg leading-relaxed font-medium text-ink">
+              {reveal.data!.decision.reasoning}
+            </p>
+            <div className="mt-8 flex flex-col md:flex-row gap-6 md:gap-12 border-t border-ink/10 pt-6">
               <div>
-                <p className="label text-cream/60">Confidence</p>
-                <p className="mt-1 tracking-widest">{confidenceDots(reveal.data!.decision.confidence)}</p>
+                <p className="label">Confidence</p>
+                <p className="mt-1 tracking-widest text-lg text-ink">{confidenceDots(reveal.data!.decision.confidence)}</p>
               </div>
               <div>
-                <p className="label text-cream/60">Expected outcome</p>
-                <p className="mt-1">{reveal.data!.decision.expectedOutcome}</p>
+                <p className="label">Expected outcome</p>
+                <p className="mt-1 text-ink font-medium">{reveal.data!.decision.expectedOutcome}</p>
               </div>
             </div>
           </div>
 
           <form onSubmit={handleAutopsySubmit} className="bento space-y-8">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight">The Autopsy</h2>
+              <h2 className="text-xl font-bold tracking-tight text-ink">The Autopsy</h2>
               <p className="text-sm text-inkSoft">Separate the quality of the decision from the outcome.</p>
             </div>
 
             <div>
-              <label className="label mb-1 block">What actually happened?</label>
+              <label className="label mb-2 block">What actually happened?</label>
               <textarea
                 required
                 className="field resize-none"
@@ -173,17 +175,17 @@ export function DecisionReview() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label className="label mb-2 block">Did the expected outcome happen?</label>
-                <div className="space-y-2">
+                <label className="label mb-3 block">Did the expected outcome happen?</label>
+                <div className="space-y-3">
                   {(["FULLY", "PARTIALLY", "NOT_AT_ALL"] as const).map((val) => (
-                    <label key={val} className="flex items-center gap-2 cursor-pointer text-sm">
+                    <label key={val} className="flex items-center gap-3 cursor-pointer text-sm font-medium">
                       <input
                         type="radio"
                         checked={outcomeMet === val}
                         onChange={() => setOutcomeMet(val)}
-                        className="accent-ink"
+                        className="h-4 w-4 accent-accent"
                       />
                       {val.replace("_", " ")}
                     </label>
@@ -192,15 +194,15 @@ export function DecisionReview() {
               </div>
 
               <div>
-                <label className="label mb-2 block">Was the process sound?</label>
-                <div className="space-y-2">
+                <label className="label mb-3 block">Was the process sound?</label>
+                <div className="space-y-3">
                   {(["YES", "PARTIALLY", "NO"] as const).map((val) => (
-                    <label key={val} className="flex items-center gap-2 cursor-pointer text-sm">
+                    <label key={val} className="flex items-center gap-3 cursor-pointer text-sm font-medium">
                       <input
                         type="radio"
                         checked={processSound === val}
                         onChange={() => setProcessSound(val)}
-                        className="accent-ink"
+                        className="h-4 w-4 accent-accent"
                       />
                       {val}
                     </label>
@@ -210,22 +212,22 @@ export function DecisionReview() {
             </div>
 
             {assumptions.length > 0 && (
-              <div className="border-t border-line pt-6">
+              <div className="border-t border-ink/10 pt-6">
                 <label className="label mb-4 block text-ink">Your assumptions</label>
                 <div className="space-y-4">
                   {assumptions.map((a) => (
-                    <div key={a.id} className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-ink/5 p-3 rounded-lg">
-                      <p className="text-sm text-ink flex-1">{a.description}</p>
+                    <div key={a.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-cream p-4 rounded-xl shadow-neu-sm">
+                      <p className="text-sm font-medium text-ink flex-1">{a.description}</p>
                       <div className="flex gap-2">
                         {(["TRUE", "PARTIAL", "FALSE"] as const).map((val) => (
                           <button
                             key={val}
                             type="button"
                             onClick={() => setAssumptionResults(prev => ({ ...prev, [a.id]: val }))}
-                            className={`px-3 py-1 text-xs rounded-pill transition-colors ${
+                            className={`px-4 py-1.5 text-xs font-bold rounded-pill transition-all ${
                               assumptionResults[a.id] === val 
-                                ? "bg-ink text-cream" 
-                                : "bg-white/40 text-inkSoft hover:bg-white/60"
+                                ? "bg-cream shadow-neu-pressed text-accentHover" 
+                                : "bg-cream shadow-neu-sm text-inkSoft hover:text-ink"
                             }`}
                           >
                             {val === "TRUE" ? "True" : val === "PARTIAL" ? "Partial" : "False"}
@@ -239,15 +241,15 @@ export function DecisionReview() {
             )}
 
             <div>
-              <label className="label mb-1 block">Would you decide the same again?</label>
-              <div className="flex gap-4">
+              <label className="label mb-3 block">Would you decide the same again?</label>
+              <div className="flex gap-6">
                 {(["YES", "MAYBE", "NO"] as const).map((val) => (
-                  <label key={val} className="flex items-center gap-2 cursor-pointer text-sm">
+                  <label key={val} className="flex items-center gap-3 cursor-pointer text-sm font-medium">
                     <input
                       type="radio"
                       checked={wouldDecideAgain === val}
                       onChange={() => setWouldDecideAgain(val)}
-                      className="accent-ink"
+                      className="h-4 w-4 accent-accent"
                     />
                     {val}
                   </label>
@@ -256,7 +258,7 @@ export function DecisionReview() {
             </div>
 
             <div>
-              <label className="label mb-1 block">What did you learn?</label>
+              <label className="label mb-2 block">What did you learn?</label>
               <input
                 className="field"
                 placeholder="Evaluate learning and salary independently."
@@ -265,7 +267,7 @@ export function DecisionReview() {
               />
             </div>
 
-            <div className="pt-4 border-t border-line flex justify-end">
+            <div className="pt-6 border-t border-ink/10 flex justify-end">
               <button
                 type="submit"
                 disabled={submitReview.isPending}

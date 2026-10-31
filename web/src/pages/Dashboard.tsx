@@ -12,9 +12,9 @@ export function Dashboard() {
 
   return (
     <div>
-      <header className="mb-8 flex items-end justify-between">
+      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-inkSoft">Welcome back. Here is the state of your judgment.</p>
         </div>
         <Link to="/decisions/new" className="btn-primary">
@@ -24,10 +24,10 @@ export function Dashboard() {
 
       <BentoGrid>
         {/* METRIC: Needs Attention */}
-        <BentoCard span="twoThirds" className={metrics.attentionCount > 0 ? "bg-amber/10 border-amber/30" : ""}>
-          <p className="label">Needs attention</p>
+        <BentoCard span="twoThirds" className={metrics.attentionCount > 0 ? "shadow-neu-pressed border-none bg-cream" : ""}>
+          <p className={`label ${metrics.attentionCount > 0 ? "text-accentHover" : ""}`}>Needs attention</p>
           <div className="mt-3 flex items-baseline gap-3">
-            <p className="stat">{metrics.attentionCount}</p>
+            <p className={`stat ${metrics.attentionCount > 0 ? "text-accentHover" : ""}`}>{metrics.attentionCount}</p>
             <p className="stat-note">decisions are due or overdue for review.</p>
           </div>
           {metrics.attentionCount > 0 && (
@@ -51,7 +51,7 @@ export function Dashboard() {
           <BentoCard span="half">
             <p className="label">Calibration</p>
             <div className="mt-3">
-              <p className="text-xl font-medium tracking-tight">
+              <p className="text-xl font-bold tracking-tight">
                 {patterns.sample.enoughForClaims ? "Reliable data" : "Building sample"}
               </p>
               <p className="stat-note mt-1">
@@ -66,7 +66,7 @@ export function Dashboard() {
           <BentoCard span="half">
             <p className="label">Sound process, bad outcome</p>
             <div className="mt-3 flex items-baseline gap-2">
-              <p className="text-3xl font-semibold tracking-tight text-ink">
+              <p className="text-3xl font-bold tracking-tight text-ink">
                 {patterns.axes.goodProcessBadOutcome}
               </p>
               <p className="stat-note">times you made a good decision but the universe disagreed.</p>
@@ -76,8 +76,8 @@ export function Dashboard() {
 
         {/* ATTENTION LIST */}
         {needsAttention.length > 0 && (
-          <div className="md:col-span-6 lg:col-span-12 mt-4">
-            <h2 className="text-lg font-semibold tracking-tight mb-4">Due for autopsy</h2>
+          <div className="md:col-span-6 lg:col-span-12 mt-6">
+            <h2 className="text-xl font-bold tracking-tight mb-4">Due for autopsy</h2>
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
               {needsAttention.map((d) => (
                 <DecisionCard key={d.id} decision={d} />
@@ -88,8 +88,8 @@ export function Dashboard() {
 
         {/* RECENT REVIEWS */}
         {recentDecisions.length > 0 && (
-          <div className="md:col-span-6 lg:col-span-12 mt-4">
-            <h2 className="text-lg font-semibold tracking-tight mb-4">Recently closed</h2>
+          <div className="md:col-span-6 lg:col-span-12 mt-6">
+            <h2 className="text-xl font-bold tracking-tight mb-4">Recently closed</h2>
             <div className="grid grid-cols-1 gap-gutter md:grid-cols-2">
               {recentDecisions.map((d) => (
                 <DecisionCard key={d.id} decision={d} />
