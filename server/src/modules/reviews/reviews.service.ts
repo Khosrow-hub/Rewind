@@ -34,12 +34,10 @@ export async function submitReplayChoice(
   if (!decision) throw new Error("NOT_FOUND");
   if (decision.status !== "PENDING") throw new Error("ALREADY_REVIEWED");
   
-  // 1. Prevent duplicate submissions
   if (decision.events.length > 0) {
     throw new Error("REPLAY_ALREADY_SUBMITTED");
   }
 
-  // 2. Validate against actual options
   const validOption = decision.options.find(o => o.label === replayChoice);
   if (!validOption) {
     throw new Error("INVALID_OPTION");
@@ -64,7 +62,7 @@ export async function revealSnapshot(userId: string, decisionId: string) {
       title: true,
       reasoning: true,
       expectedOutcome: true,
-      confidence: true,
+      probability: true, // CHANGED
       importance: true,
       snapshotAt: true,
       assumptions: {
@@ -73,7 +71,7 @@ export async function revealSnapshot(userId: string, decisionId: string) {
           id: true,
           description: true,
           importance: true,
-          confidence: true,
+          confidence: true, // Assumption still uses confidence
           verifyAt: true,
           result: true,
           resultNote: true

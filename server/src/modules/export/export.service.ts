@@ -26,7 +26,7 @@ export async function exportAll(userId: string) {
       title: d.title,
       reasoning: d.reasoning,
       expectedOutcome: d.expectedOutcome,
-      confidence: d.confidence,
+      probability: d.probability, // CHANGED
       importance: d.importance,
       status: d.status,
       reviewAt: d.reviewAt,
@@ -84,7 +84,7 @@ export async function exportCsv(userId: string): Promise<string> {
     "created_at",
     "title",
     "importance",
-    "confidence",
+    "probability", // CHANGED
     "chosen_option",
     "expected_outcome",
     "review_at",
@@ -104,7 +104,7 @@ export async function exportCsv(userId: string): Promise<string> {
         d.createdAt.toISOString(),
         csvEscape(d.title),
         d.importance,
-        d.confidence,
+        d.probability, // CHANGED
         csvEscape(chosen?.label ?? ""),
         csvEscape(d.expectedOutcome),
         d.reviewAt.toISOString(),
