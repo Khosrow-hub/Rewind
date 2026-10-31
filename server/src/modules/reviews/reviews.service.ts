@@ -28,12 +28,23 @@ export async function submitReplayChoice(
 ) {
   const decision = await prisma.decision.findFirst({
     where: { id: decisionId, userId },
-    select: { id: true, status: true }
+    include: { options: true, events: { where: { type: "REPLAY_SUBMITTED" } } }
   });
+  
   if (!decision) throw new Error("NOT_FOUND");
   if (decision.status !== "PENDING") throw new Error("ALREADY_REVIEWED");
+  
+  // 1. Prevent duplicate submissions
+  if (decision.events.length > 0) {
+    throw new Error("REPLAY_ALREADY_SUBMITTED");
+  }
 
-  // Save the replay event
+  // 2. Validate against actual options
+  const validOption = decision.options.find(o => o.label === replayChoice);
+  if (!validOption) {
+    throw new Error("INVALID_OPTION");
+  }
+
   await prisma.decisionEvent.create({
     data: {
       decisionId,
@@ -91,13 +102,10 @@ export async function createReview(
   if (!decision) throw new Error("NOT_FOUND");
   if (decision.status !== "PENDING") throw new Error("ALREADY_REVIEWED");
 
-  // ENFORCE REPLAY FIRST
   const replayEvent = await prisma.decisionEvent.findFirst({
     where: { decisionId, type: "REPLAY_SUBMITTED" }
   });
-  if (!replayEvent) {
-    throw new Error("REPLAY_REQUIRED");
-  }
+  if (!replayEvent) throw new Error("REPLAY_REQUIRED");
 
   const result = await prisma.$transaction(async (tx) => {
     const review = await tx.decisionReview.create({
@@ -132,11 +140,7 @@ export async function createReview(
       data: {
         decisionId,
         type: input.kind === "FINAL" ? "FINAL_REVIEW_ADDED" : "INTERIM_REVIEW_ADDED",
-        payload: {
-          reviewId: review.id,
-          outcomeMet: input.outcomeMet,
-          processSound: input.processSound
-        }
+        payload: { reviewId: review.id, outcomeMet: input.outcomeMet }
       }
     });
 

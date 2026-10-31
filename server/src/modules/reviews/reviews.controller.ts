@@ -35,10 +35,10 @@ export async function replay(req: Request, res: Response) {
     );
     return res.status(201).json(data);
   } catch (err) {
-    if (err instanceof Error && err.message === "ALREADY_REVIEWED") {
-      return res.status(409).json({ error: "This decision is already reviewed" });
+    if (err instanceof Error && err.message === "REPLAY_ALREADY_REVIEWED") {
+      return res.status(409).json({ error: "Replay choice already submitted" });
     }
-    return res.status(404).json({ error: "Not found" });
+    return res.status(404).json({ error: "Choice does not match available options" });
   }
 }
 

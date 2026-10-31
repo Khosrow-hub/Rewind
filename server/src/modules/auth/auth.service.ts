@@ -7,20 +7,21 @@ import {
 } from "../../lib/session.js";
 
 export async function signup(email: string, password: string) {
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    throw new Error("EMAIL_TAKEN");
-  }
+  const normalizedEmail = email.trim().toLowerCase();
+  const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  if (existing) throw new Error("EMAIL_TAKEN");
+
   const passwordHash = await hashPassword(password);
   const user = await prisma.user.create({
-    data: { email, passwordHash },
+    data: { email: normalizedEmail, passwordHash },
     select: { id: true, email: true, createdAt: true }
   });
   return user;
 }
 
 export async function login(email: string, password: string) {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
   if (!user) throw new Error("INVALID_CREDENTIALS");
   const ok = await verifyPassword(user.passwordHash, password);
   if (!ok) throw new Error("INVALID_CREDENTIALS");

@@ -40,11 +40,7 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
       data: {
         decisionId: created.id,
         type: "DECISION_CREATED",
-        payload: {
-          title: created.title,
-          confidence: created.confidence,
-          importance: created.importance
-        }
+        payload: { title: created.title, confidence: created.confidence }
       }
     });
 
@@ -61,11 +57,32 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
       }
     }
 
+    if (input.assumptions && input.assumptions.length > 0) {
+      for (const a of input.assumptions) {
+        await tx.assumption.create({
+          data: {
+            decisionId: created.id,
+            description: a.description,
+            importance: input.importance,
+            confidence: input.confidence,
+          }
+        });
+        await tx.decisionEvent.create({
+          data: {
+            decisionId: created.id,
+            type: "ASSUMPTION_ADDED",
+            payload: { description: a.description }
+          }
+        });
+      }
+    }
+
     return tx.decision.findUniqueOrThrow({
       where: { id: created.id },
       include: {
         options: { orderBy: { position: "asc" } },
-        tags: { include: { tag: true } }
+        tags: { include: { tag: true } },
+        assumptions: true
       }
     });
   });
@@ -102,6 +119,21 @@ export async function getDecision(userId: string, id: string) {
     }
   });
   if (!d) throw new Error("NOT_FOUND");
+
+  // SECURITY: Hide reasoning and chosen option if replay has not been submitted
+  const replayEvent = d.events.find((e) => e.type === "REPLAY_SUBMITTED");
+  const isRevealed = !!replayEvent || d.status === "REVIEWED";
+
+  if (!isRevealed) {
+    return {
+      ...d,
+      reasoning: "Hidden until replay is submitted",
+      expectedOutcome: "Hidden until replay is submitted",
+      chosenOptionId: null, 
+      reviewState: getReviewState({ status: d.status, reviewAt: d.reviewAt })
+    };
+  }
+
   return {
     ...d,
     reviewState: getReviewState({ status: d.status, reviewAt: d.reviewAt })
@@ -120,8 +152,6 @@ export async function updateDecision(
   if (!existing) throw new Error("NOT_FOUND");
   if (existing.status !== "PENDING") throw new Error("LOCKED");
 
-  // ENFORCE IMMUTABILITY: Only allow updating the title and review date.
-  // Reasoning, expected outcome, and confidence are permanently locked.
   const data: Record<string, unknown> = {};
   if (input.title !== undefined) data.title = input.title;
   if (input.reviewAt !== undefined) data.reviewAt = new Date(input.reviewAt);

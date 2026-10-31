@@ -6,7 +6,7 @@ const wouldDecideAgainEnum = z.enum(["YES", "MAYBE", "NO"]);
 const reviewKindEnum = z.enum(["INTERIM", "FINAL"]);
 
 export const submitReplayChoiceSchema = z.object({
-  replayChoice: z.string().min(1).max(200)
+  replayChoice: z.string().min(1).max(200) // We will validate this against options in the service
 });
 
 export const createReviewSchema = z.object({
