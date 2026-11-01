@@ -72,6 +72,8 @@ export async function getSessions(req: Request, res: Response) {
   if (!userId) return res.status(401).json({ error: "Not authenticated" });
   
   const sessions = await authService.getUserSessions(userId);
+    // Print to Render logs
+  console.log(`[SESSIONS] User ${userId} has ${sessions.length} active sessions.`);
   return res.json({ sessions });
 }
 
