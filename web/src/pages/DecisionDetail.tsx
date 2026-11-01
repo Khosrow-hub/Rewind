@@ -13,7 +13,6 @@ export function DecisionDetail() {
   const chosen = d.options.find((o) => o.id === d.chosenOptionId);
   const finalReview = d.reviews.find((r) => r.kind === "FINAL");
 
-  // Split Pre-mortem from Expected Outcome
   let displayOutcome = d.expectedOutcome || "";
   let displayPreMortem = "";
   
@@ -23,7 +22,6 @@ export function DecisionDetail() {
     displayPreMortem = parts[1].trim();
   }
 
-  // Helper to format dates nicely
   const formatDate = (isoString: string) => {
     return new Date(isoString).toLocaleDateString("en-US", {
       month: "short",
@@ -32,19 +30,13 @@ export function DecisionDetail() {
     });
   };
 
-  // Helper to get a clean title for the timeline event
   const getEventDisplay = (type: string) => {
     switch (type) {
-      case "DECISION_CREATED":
-        return { title: "Decision logged" };
-      case "REPLAY_SUBMITTED":
-        return { title: "Replay submitted" };
-      case "FINAL_REVIEW_ADDED":
-        return { title: "Autopsy completed" };
-      case "ASSUMPTION_RESOLVED":
-        return { title: "Assumption verified" };
-      default:
-        return { title: type.replace(/_/g, " ").toLowerCase() };
+      case "DECISION_CREATED": return { title: "Decision logged" };
+      case "REPLAY_SUBMITTED": return { title: "Replay submitted" };
+      case "FINAL_REVIEW_ADDED": return { title: "Autopsy completed" };
+      case "ASSUMPTION_RESOLVED": return { title: "Assumption verified" };
+      default: return { title: type.replace(/_/g, " ").toLowerCase() };
     }
   };
 
@@ -137,6 +129,29 @@ export function DecisionDetail() {
               )}
             </div>
           )}
+
+          {/* NEW: ASSUMPTION TRACKER RESULTS */}
+          {d.assumptions && d.assumptions.length > 0 && (
+            <div className="bento">
+              <h2 className="label mb-4 text-accentHover">Assumption tracker</h2>
+              <div className="space-y-4">
+                {d.assumptions.map((a: any) => (
+                  <div key={a.id} className="flex items-center justify-between border-b border-ink/5 pb-4 last:border-0 last:pb-0">
+                    <p className="text-sm font-medium text-ink flex-1 pr-4">{a.description}</p>
+                    <span className={`text-xs font-bold px-3 py-1 rounded-pill ${
+                      a.result === "TRUE" ? "bg-green-500/10 text-green-600" :
+                      a.result === "FALSE" ? "bg-red-500/10 text-red-600" :
+                      a.result === "PARTIAL" ? "bg-amber/20 text-accentHover" :
+                      "bg-ink/5 text-inkSoft"
+                    }`}>
+                      {a.result}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
         </div>
 
         {/* RIGHT COLUMN: The Premium Timeline */}
@@ -149,11 +164,7 @@ export function DecisionDetail() {
                 const display = getEventDisplay(evt.type);
                 return (
                   <div key={evt.id} className="relative">
-                    {/* Neumorphic Node: Pressed into the page */}
-                    <div 
-                      className="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-cream shadow-neu-pressed" 
-                    />
-                    
+                    <div className="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-cream shadow-neu-pressed" />
                     <p className="text-xs font-bold text-inkSoft mb-1">
                       {formatDate(evt.createdAt)}
                     </p>
