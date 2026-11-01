@@ -45,7 +45,6 @@ export async function destroySession(token: string) {
   await prisma.session.deleteMany({ where: { tokenHash } });
 }
 
-// NEW: Get all active sessions for user
 export async function getUserSessions(userId: string) {
   return prisma.session.findMany({
     where: { userId, expiresAt: { gt: new Date() } },
@@ -53,7 +52,6 @@ export async function getUserSessions(userId: string) {
   });
 }
 
-// NEW: Revoke all sessions except the current one
 export async function revokeOtherSessions(userId: string, currentToken: string) {
   const currentHash = hashSessionToken(currentToken);
   await prisma.session.deleteMany({
@@ -63,12 +61,6 @@ export async function revokeOtherSessions(userId: string, currentToken: string) 
     }
   });
 }
-
-
-// ... keep existing imports
-
-// Add this import at the top
-
 
 export async function createPasswordReset(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -85,14 +77,15 @@ export async function createPasswordReset(email: string) {
     data: { userId: user.id, tokenHash, expiresAt }
   });
 
-  // SEND THE EMAIL
-  await sendPasswordResetEmail(user.email, token);
+  console.log(`[PASSWORD RESET] Token for ${email}: ${token}`);
   
-  return { token, email: user.email };
-}
-
-  // In production, you would email this token to the user.
-  // For now, we return it so the controller can log it.
+  try {
+    await sendPasswordResetEmail(user.email, token);
+    console.log(`[EMAIL SENT] Successfully sent to ${user.email}`);
+  } catch (error) {
+    console.error(`[EMAIL ERROR] Failed to send to ${user.email}:`, error);
+  }
+  
   return { token, email: user.email };
 }
 
@@ -119,7 +112,6 @@ export async function resetPassword(token: string, newPassword: string) {
       where: { id: reset.id },
       data: { usedAt: new Date() }
     }),
-    // Log out all devices for security
     prisma.session.deleteMany({ where: { userId: reset.userId } })
   ]);
 }
