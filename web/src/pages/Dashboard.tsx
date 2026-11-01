@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { useDashboard } from "../features/dashboard/useDashboard";
-import { useOnboardingCheck } from "../features/dashboard/useOnboardingCheck";
 import { BentoGrid } from "../components/bento/BentoGrid";
 import { BentoCard } from "../components/bento/BentoCard";
 import { DecisionCard } from "../features/decisions/DecisionCard";
@@ -9,12 +8,16 @@ import { Onboarding } from "../components/dashboard/Onboarding";
 
 export function Dashboard() {
   const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions } = useDashboard();
-  const { data: countData, isLoading: isCountLoading } = useOnboardingCheck();
 
   if (isError) return <p className="text-sm font-bold text-red-500 p-8">Could not load dashboard.</p>;
 
-  // If the count is explicitly 0, they are a new user.
-  const isNewUser = !isCountLoading && countData?.total === 0;
+  // THE FOOLPROOF CHECK:
+  // If there are no recent decisions, no due reviews, and 0 pending decisions, it is a new user.
+  const isNewUser = 
+    !isLoading && 
+    recentDecisions.length === 0 && 
+    needsAttention.length === 0 && 
+    metrics.pendingCount === 0;
 
   return (
     <div>
@@ -32,7 +35,7 @@ export function Dashboard() {
         )}
       </header>
 
-      {isLoading || isCountLoading ? (
+      {isLoading ? (
         <BentoGrid>
           <BentoCard span="twoThirds">
             <Skeleton className="h-4 w-24 mb-4" />
