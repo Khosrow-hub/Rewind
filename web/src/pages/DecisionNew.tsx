@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateDecision } from "../features/decisions/useCreateDecision";
+import { useToast } from "../features/toast/ToastContext"; // Added
 import type { Importance } from "../lib/api";
 import { importanceLabel } from "../lib/format";
-import { useToast } from "../features/toast/ToastContext";
-
-const { showToast } = useToast();
 
 const defaultDays = (importance: Importance) => {
   const map: Record<Importance, number> = {
-    LOW: 30,
-    MEDIUM: 90,
-    HIGH: 120,
-    LIFE_CHANGING: 180
+    LOW: 30, MEDIUM: 90, HIGH: 120, LIFE_CHANGING: 180
   };
   return map[importance];
 };
@@ -23,11 +18,12 @@ type LocalAssumption = { id: string; description: string };
 export function DecisionNew() {
   const navigate = useNavigate();
   const { mutate, isPending, error } = useCreateDecision();
+  const { showToast } = useToast(); // Added here (inside component)
 
   const [title, setTitle] = useState("");
   const [reasoning, setReasoning] = useState("");
   const [expectedOutcome, setExpectedOutcome] = useState("");
-  const [preMortem, setPreMortem] = useState(""); // NEW
+  const [preMortem, setPreMortem] = useState("");
   const [probability, setProbability] = useState(50);
   const [importance, setImportance] = useState<Importance>("MEDIUM");
   const [reviewDays, setReviewDays] = useState(90);
@@ -42,8 +38,7 @@ export function DecisionNew() {
 
   function handleImportanceChange(val: Importance) {
     setImportance(val);
-    const days = defaultDays(val);
-    setReviewDays(days);
+    setReviewDays(defaultDays(val));
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -62,12 +57,11 @@ export function DecisionNew() {
       .filter((a) => a.description.trim().length > 0)
       .map((a) => ({ description: a.description }));
 
-    // COMBINE EXPECTED OUTCOME AND PRE-MORTEM
     const combinedOutcome = preMortem.trim() 
       ? `${expectedOutcome}\n\n--- PRE-MORTEM ---\n${preMortem}`
       : expectedOutcome;
 
-mutate(
+    mutate(
       {
         title,
         reasoning,
@@ -77,10 +71,7 @@ mutate(
         options: validOptions.map(o => ({ label: o.label })),
         chosenOptionIndex: chosenIndex,
         reviewAt: reviewAt.toISOString(),
-        tags: tags
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean),
+        tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         assumptions: validAssumptions
       },
       {
@@ -281,7 +272,7 @@ mutate(
           <div>
             <h2 className="text-xl font-bold tracking-tight">Assumptions</h2>
             <p className="text-xs font-medium text-inkSoft mt-1">
-              What must be true for this decision to succeed? (Optional, but highly recommended)
+              What must be true for this decision to succeed? (Optional)
             </p>
           </div>
           

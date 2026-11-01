@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "../features/auth/AuthContext";
+import { useToast } from "../features/toast/ToastContext"; // Added
 import { api } from "../lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useToast } from "../features/toast/ToastContext";
-
-const { showToast } = useToast();
 
 const API_BASE = "";
 
@@ -16,18 +14,18 @@ type Session = {
 
 export function Settings() {
   const { logout } = useAuth();
+  const { showToast } = useToast(); // Added
   const queryClient = useQueryClient();
   const [isRevoking, setIsRevoking] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["sessions"],
-    // Add a timestamp to bust the proxy cache
-    queryFn: () => api<{ sessions: Session[] }>(`/api/auth/sessions?t=${Date.now()}`),
+    queryFn: () => api<{ sessions: Session[] }>("/api/auth/sessions"),
     staleTime: 0,
     refetchOnMount: "always"
   });
 
-async function revokeAll() {
+  async function revokeAll() {
     setIsRevoking(true);
     try {
       await api("/api/auth/sessions", { method: "DELETE" });
