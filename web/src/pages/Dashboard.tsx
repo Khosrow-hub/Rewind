@@ -3,7 +3,7 @@ import { useDashboard } from "../features/dashboard/useDashboard";
 import { BentoGrid } from "../components/bento/BentoGrid";
 import { BentoCard } from "../components/bento/BentoCard";
 import { DecisionCard } from "../features/decisions/DecisionCard";
-import { Skeleton } from "../components/ui/skeleton";
+import { Skeleton } from "../components/ui/Skeleton";
 
 export function Dashboard() {
   const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions } = useDashboard();
