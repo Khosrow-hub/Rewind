@@ -13,9 +13,26 @@ export function DecisionDetail() {
   const chosen = d.options.find((o) => o.id === d.chosenOptionId);
   const finalReview = d.reviews.find((r) => r.kind === "FINAL");
 
+  // Split Reasoning and Scorecard
+  let displayReasoning = d.reasoning || "";
+  let displayScorecard = { evidence: "", alternatives: "", risks: "" };
+  
+  if (displayReasoning.includes("--- SCORECARD ---")) {
+    const parts = displayReasoning.split("--- SCORECARD ---");
+    displayReasoning = parts[0].trim();
+    const scorecardText = parts[1].trim();
+    
+    const lines = scorecardText.split("\n");
+    lines.forEach(line => {
+      if (line.startsWith("Evidence:")) displayScorecard.evidence = line.replace("Evidence:", "").trim();
+      if (line.startsWith("Alternatives:")) displayScorecard.alternatives = line.replace("Alternatives:", "").trim();
+      if (line.startsWith("Risks:")) displayScorecard.risks = line.replace("Risks:", "").trim();
+    });
+  }
+
+  // Split Pre-mortem
   let displayOutcome = d.expectedOutcome || "";
   let displayPreMortem = "";
-  
   if (displayOutcome.includes("--- PRE-MORTEM ---")) {
     const parts = displayOutcome.split("--- PRE-MORTEM ---");
     displayOutcome = parts[0].trim();
@@ -23,11 +40,7 @@ export function DecisionDetail() {
   }
 
   const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric"
-    });
+    return new Date(isoString).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
 
   const getEventDisplay = (type: string) => {
@@ -63,13 +76,36 @@ export function DecisionDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* LEFT COLUMN: The Snapshot & Autopsy */}
         <div className="lg:col-span-2 space-y-8">
           
           <div className="bento">
             <h2 className="label mb-4 text-accentHover">The original snapshot</h2>
-            <p className="text-lg leading-relaxed text-ink font-medium">{d.reasoning}</p>
+            <p className="text-lg leading-relaxed text-ink font-medium">{displayReasoning}</p>
             
+            {/* SCORECARD DISPLAY */}
+            {(displayScorecard.evidence || displayScorecard.alternatives || displayScorecard.risks) && (
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-ink/10 pt-6">
+                {displayScorecard.evidence && (
+                  <div>
+                    <p className="label">Evidence</p>
+                    <p className="mt-1 text-sm text-ink">{displayScorecard.evidence}</p>
+                  </div>
+                )}
+                {displayScorecard.alternatives && (
+                  <div>
+                    <p className="label">Alternatives</p>
+                    <p className="mt-1 text-sm text-ink">{displayScorecard.alternatives}</p>
+                  </div>
+                )}
+                {displayScorecard.risks && (
+                  <div>
+                    <p className="label">Risks</p>
+                    <p className="mt-1 text-sm text-ink">{displayScorecard.risks}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="mt-8 grid grid-cols-2 gap-6 border-t border-ink/10 pt-6">
               <div>
                 <p className="label">Chosen option</p>
@@ -130,7 +166,6 @@ export function DecisionDetail() {
             </div>
           )}
 
-          {/* NEW: ASSUMPTION TRACKER RESULTS */}
           {d.assumptions && d.assumptions.length > 0 && (
             <div className="bento">
               <h2 className="label mb-4 text-accentHover">Assumption tracker</h2>
@@ -154,7 +189,6 @@ export function DecisionDetail() {
 
         </div>
 
-        {/* RIGHT COLUMN: The Premium Timeline */}
         <div className="lg:col-span-1">
           <div className="bento h-full">
             <h2 className="label mb-6">Replay timeline</h2>

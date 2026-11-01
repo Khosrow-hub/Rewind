@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateDecision } from "../features/decisions/useCreateDecision";
-import { useToast } from "../features/toast/ToastContext"; // Added
+import { useToast } from "../features/toast/ToastContext";
 import type { Importance } from "../lib/api";
 import { importanceLabel } from "../lib/format";
 
@@ -18,12 +18,18 @@ type LocalAssumption = { id: string; description: string };
 export function DecisionNew() {
   const navigate = useNavigate();
   const { mutate, isPending, error } = useCreateDecision();
-  const { showToast } = useToast(); // Added here (inside component)
+  const { showToast } = useToast();
 
   const [title, setTitle] = useState("");
   const [reasoning, setReasoning] = useState("");
   const [expectedOutcome, setExpectedOutcome] = useState("");
   const [preMortem, setPreMortem] = useState("");
+  
+  // NEW: Scorecard state
+  const [evidence, setEvidence] = useState("");
+  const [alternatives, setAlternatives] = useState("");
+  const [risks, setRisks] = useState("");
+
   const [probability, setProbability] = useState(50);
   const [importance, setImportance] = useState<Importance>("MEDIUM");
   const [reviewDays, setReviewDays] = useState(90);
@@ -57,6 +63,15 @@ export function DecisionNew() {
       .filter((a) => a.description.trim().length > 0)
       .map((a) => ({ description: a.description }));
 
+    // Combine Reasoning and Scorecard
+    let combinedReasoning = reasoning;
+    if (evidence || alternatives || risks) {
+      combinedReasoning += `\n\n--- SCORECARD ---\n`;
+      if (evidence) combinedReasoning += `Evidence: ${evidence}\n`;
+      if (alternatives) combinedReasoning += `Alternatives: ${alternatives}\n`;
+      if (risks) combinedReasoning += `Risks: ${risks}`;
+    }
+
     const combinedOutcome = preMortem.trim() 
       ? `${expectedOutcome}\n\n--- PRE-MORTEM ---\n${preMortem}`
       : expectedOutcome;
@@ -64,7 +79,7 @@ export function DecisionNew() {
     mutate(
       {
         title,
-        reasoning,
+        reasoning: combinedReasoning,
         expectedOutcome: combinedOutcome,
         probability,
         importance,
@@ -163,6 +178,43 @@ export function DecisionNew() {
               <span>50% (Coin flip)</span>
               <span>100% (Certain)</span>
             </div>
+          </div>
+        </div>
+
+        <div className="bento space-y-6">
+          <h2 className="text-xl font-bold tracking-tight">Decision Quality Scorecard</h2>
+          <p className="text-xs font-medium text-inkSoft mb-2">
+            Force yourself to think critically before committing.
+          </p>
+
+          <div>
+            <label className="label mb-2 block">Evidence (Did I gather enough info?)</label>
+            <input
+              className="field"
+              placeholder="I spoke to 3 current employees and read the financials."
+              value={evidence}
+              onChange={(e) => setEvidence(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="label mb-2 block">Alternatives (Did I consider other options?)</label>
+            <input
+              className="field"
+              placeholder="I also negotiated with my current employer."
+              value={alternatives}
+              onChange={(e) => setAlternatives(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label className="label mb-2 block">Risks (What could go wrong?)</label>
+            <input
+              className="field"
+              placeholder="The company might pivot and change my role."
+              value={risks}
+              onChange={(e) => setRisks(e.target.value)}
+            />
           </div>
         </div>
 
@@ -272,7 +324,7 @@ export function DecisionNew() {
           <div>
             <h2 className="text-xl font-bold tracking-tight">Assumptions</h2>
             <p className="text-xs font-medium text-inkSoft mt-1">
-              What must be true for this decision to succeed? (Optional)
+              What must be true for this decision to succeed?
             </p>
           </div>
           
