@@ -18,8 +18,9 @@ export function Settings() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => api<{ sessions: Session[] }>("/api/auth/sessions"),
-    staleTime: 0, // Force fresh fetch on every mount
+    // Add a timestamp to bust the proxy cache
+    queryFn: () => api<{ sessions: Session[] }>(`/api/auth/sessions?t=${Date.now()}`),
+    staleTime: 0,
     refetchOnMount: "always"
   });
 
