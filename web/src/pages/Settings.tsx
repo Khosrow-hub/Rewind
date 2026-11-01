@@ -18,14 +18,16 @@ export function Settings() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => api<{ sessions: Session[] }>("/api/auth/sessions")
+    queryFn: () => api<{ sessions: Session[] }>("/api/auth/sessions"),
+    staleTime: 0, // Force fresh fetch on every mount
+    refetchOnMount: "always"
   });
 
   async function revokeAll() {
     setIsRevoking(true);
     try {
       await api("/api/auth/sessions", { method: "DELETE" });
-      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.setQueryData(["sessions"], { sessions: [{ id: "current" }] }); // Instantly update UI
       alert("All other devices have been logged out.");
     } catch (err) {
       alert("Failed to revoke sessions.");
@@ -42,31 +44,17 @@ export function Settings() {
       </header>
 
       <div className="space-y-gutter">
-        {/* EXPORT */}
         <div className="bento">
           <h2 className="text-xl font-bold tracking-tight">Export data</h2>
           <p className="mt-2 text-sm text-inkSoft">
             Download a complete copy of your data in JSON or CSV format.
           </p>
           <div className="mt-6 flex gap-3">
-            <a
-              href={`${API_BASE}/api/export/json`}
-              download
-              className="btn-primary"
-            >
-              Download JSON
-            </a>
-            <a
-              href={`${API_BASE}/api/export/csv`}
-              download
-              className="btn-ghost"
-            >
-              Download CSV
-            </a>
+            <a href={`${API_BASE}/api/export/json`} download className="btn-primary">Download JSON</a>
+            <a href={`${API_BASE}/api/export/csv`} download className="btn-ghost">Download CSV</a>
           </div>
         </div>
 
-        {/* SESSIONS */}
         <div className="bento">
           <h2 className="text-xl font-bold tracking-tight">Active sessions</h2>
           
@@ -75,7 +63,7 @@ export function Settings() {
           ) : (
             <>
               <p className="mt-2 text-sm text-inkSoft mb-6">
-                You are currently logged in on {data?.sessions.length || 1} device(s).
+                You are currently logged in on <strong>{data?.sessions.length || 1}</strong> device(s).
               </p>
               
               <button 
@@ -89,15 +77,10 @@ export function Settings() {
           )}
         </div>
 
-        {/* ACCOUNT */}
         <div className="bento">
           <h2 className="text-xl font-bold tracking-tight">Account</h2>
-          <p className="mt-2 text-sm text-inkSoft">
-            Sign out of this device.
-          </p>
-          <button onClick={logout} className="btn-ghost mt-6">
-            Sign out
-          </button>
+          <p className="mt-2 text-sm text-inkSoft">Sign out of this device.</p>
+          <button onClick={logout} className="btn-ghost mt-6">Sign out</button>
         </div>
       </div>
     </div>
