@@ -13,6 +13,7 @@ export function DecisionDetail() {
   const chosen = d.options.find((o) => o.id === d.chosenOptionId);
   const finalReview = d.reviews.find((r) => r.kind === "FINAL");
 
+  // Split Pre-mortem from Expected Outcome
   let displayOutcome = d.expectedOutcome || "";
   let displayPreMortem = "";
   
@@ -22,20 +23,45 @@ export function DecisionDetail() {
     displayPreMortem = parts[1].trim();
   }
 
+  // Helper to format dates nicely
+  const formatDate = (isoString: string) => {
+    return new Date(isoString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric"
+    });
+  };
+
+  // Helper to get a clean title and color for the timeline event
+  const getEventDisplay = (type: string) => {
+    switch (type) {
+      case "DECISION_CREATED":
+        return { title: "Decision logged", color: "bg-blue-500" };
+      case "REPLAY_SUBMITTED":
+        return { title: "Replay submitted", color: "bg-amber" };
+      case "FINAL_REVIEW_ADDED":
+        return { title: "Autopsy completed", color: "bg-green-500" };
+      case "ASSUMPTION_RESOLVED":
+        return { title: "Assumption verified", color: "bg-purple-500" };
+      default:
+        return { title: type.replace(/_/g, " ").toLowerCase(), color: "bg-inkSoft" };
+    }
+  };
+
   return (
-    <div className="mx-auto max-w-4xl">
-      <header className="mb-8 flex items-start justify-between">
+    <div className="mx-auto max-w-5xl">
+      <header className="mb-10 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <Link to="/decisions" className="text-sm font-bold text-inkSoft hover:text-accentHover mb-2 inline-block">
-            Back to decisions
+          <Link to="/decisions" className="text-sm font-bold text-inkSoft hover:text-accentHover mb-2 inline-block transition-colors">
+            &larr; Back to decisions
           </Link>
           <h1 className="text-3xl font-bold tracking-tight">{d.title}</h1>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="rounded-pill bg-cream shadow-neu-sm px-3 py-1 text-2xs font-bold uppercase tracking-wider text-inkSoft">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="rounded-pill bg-cream shadow-neu-sm px-4 py-1.5 text-2xs font-bold uppercase tracking-wider text-inkSoft">
               {d.status}
             </span>
             {d.tags.map((t: any) => (
-              <span key={t.tag.name} className="rounded-pill bg-cream shadow-neu-sm px-3 py-1 text-2xs font-bold text-inkSoft">
+              <span key={t.tag.name} className="rounded-pill bg-cream shadow-neu-sm px-4 py-1.5 text-2xs font-bold text-inkSoft">
                 {t.tag.name}
               </span>
             ))}
@@ -43,13 +69,16 @@ export function DecisionDetail() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
-        <div className="lg:col-span-2 space-y-gutter">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* LEFT COLUMN: The Snapshot & Autopsy */}
+        <div className="lg:col-span-2 space-y-8">
+          
           <div className="bento">
-            <h2 className="label mb-3">The original snapshot</h2>
+            <h2 className="label mb-4 text-accentHover">The original snapshot</h2>
             <p className="text-lg leading-relaxed text-ink font-medium">{d.reasoning}</p>
             
-            <div className="mt-6 grid grid-cols-2 gap-4 border-t border-ink/10 pt-6">
+            <div className="mt-8 grid grid-cols-2 gap-6 border-t border-ink/10 pt-6">
               <div>
                 <p className="label">Chosen option</p>
                 <p className="mt-1 text-sm font-bold">{chosen?.label ?? "Not set"}</p>
@@ -69,29 +98,29 @@ export function DecisionDetail() {
             </div>
 
             {displayPreMortem && (
-              <div className="mt-6 bg-accent/10 p-4 rounded-xl border border-accent/20">
+              <div className="mt-6 bg-accent/10 p-5 rounded-xl border border-accent/20">
                 <p className="label text-accentHover">Pre-mortem</p>
-                <p className="mt-1 text-sm font-medium text-ink">{displayPreMortem}</p>
+                <p className="mt-2 text-sm font-medium text-ink leading-relaxed">{displayPreMortem}</p>
               </div>
             )}
           </div>
 
           {finalReview && (
             <div className="bento shadow-neu-pressed bg-cream">
-              <h2 className="label mb-3 text-accentHover">The autopsy</h2>
+              <h2 className="label mb-4 text-accentHover">The autopsy</h2>
               
-              <div className="mb-4">
-                <p className="text-sm font-bold">What actually happened</p>
-                <p className="mt-1 text-sm text-inkSoft font-medium">{finalReview.whatHappened}</p>
+              <div className="mb-6">
+                <p className="text-sm font-bold text-ink">What actually happened</p>
+                <p className="mt-2 text-sm text-inkSoft font-medium leading-relaxed">{finalReview.whatHappened}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-t border-ink/10 pt-6">
+              <div className="grid grid-cols-2 gap-6 border-t border-ink/10 pt-6">
                 <div>
-                  <p className="label">Expected outcome</p>
+                  <p className="label">Outcome</p>
                   <p className="mt-1 text-sm font-bold">{finalReview.outcomeMet.replace("_", " ")}</p>
                 </div>
                 <div>
-                  <p className="label">Was process sound?</p>
+                  <p className="label">Process sound?</p>
                   <p className="mt-1 text-sm font-bold">{finalReview.processSound}</p>
                 </div>
                 <div>
@@ -101,33 +130,41 @@ export function DecisionDetail() {
               </div>
 
               {finalReview.lesson && (
-                <div className="mt-4 border-t border-ink/10 pt-4">
+                <div className="mt-6 border-t border-ink/10 pt-6">
                   <p className="label">Lesson learned</p>
-                  <p className="mt-1 text-sm font-medium text-ink">{finalReview.lesson}</p>
+                  <p className="mt-2 text-sm font-medium text-ink leading-relaxed">{finalReview.lesson}</p>
                 </div>
               )}
             </div>
           )}
         </div>
 
+        {/* RIGHT COLUMN: The Premium Timeline */}
         <div className="lg:col-span-1">
           <div className="bento h-full">
-            <h2 className="label mb-4">Replay timeline</h2>
-            <div className="space-y-4 border-l border-ink/20 ml-2 pl-4">
-              {d.events.map((evt: any) => (
-                <div key={evt.id} className="relative">
-                  <div className="absolute -left-[21px] top-1 h-2 w-2 rounded-full bg-accent" />
-                  <p className="text-xs font-bold text-inkSoft">
-                    {new Date(evt.createdAt).toLocaleDateString()}
-                  </p>
-                  <p className="text-sm font-bold text-ink capitalize">
-                    {evt.type.replace(/_/g, " ").toLowerCase()}
-                  </p>
-                </div>
-              ))}
+            <h2 className="label mb-6">Replay timeline</h2>
+            
+            <div className="relative border-l-2 border-ink/10 ml-3 pl-8 space-y-8 pb-4">
+              {d.events.map((evt: any, index: number) => {
+                const display = getEventDisplay(evt.type);
+                return (
+                  <div key={evt.id} className="relative">
+                    {/* Glowing Node */}
+                    <div className={`absolute -left-[41px] top-1 h-4 w-4 rounded-full border-4 border-cream ${display.color} shadow-neu-sm`} />
+                    
+                    <p className="text-xs font-bold text-inkSoft mb-1">
+                      {formatDate(evt.createdAt)}
+                    </p>
+                    <p className="text-sm font-bold text-ink capitalize">
+                      {display.title}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
