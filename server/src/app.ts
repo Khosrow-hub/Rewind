@@ -8,12 +8,12 @@ import { decisionsRouter } from "./modules/decisions/decisions.routes.js";
 import { reviewsRouter } from "./modules/reviews/reviews.routes.js";
 import { patternsRouter } from "./modules/patterns/patterns.routes.js";
 import { exportRouter } from "./modules/export/export.routes.js";
+import { remindersRouter } from "./modules/reminders/reminders.routes.js"; // NEW
 import { errorHandler } from "./middleware/errorHandler.js";
 
 export function createApp() {
   const app = express();
 
-  // ADD THIS LINE: Trust the Render/Cloudflare proxy
   app.set("trust proxy", 1);
 
   const allowedOrigins = env.CORS_ORIGIN.split(",").map((s) => s.trim());
@@ -33,6 +33,7 @@ export function createApp() {
   app.use("/api/decisions", decisionsRouter);
   app.use("/api/patterns", patternsRouter);
   app.use("/api/export", exportRouter);
+  app.use("/api/reminders", remindersRouter); // NEW
 
   app.use(errorHandler);
   return app;

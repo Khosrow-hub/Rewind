@@ -41,7 +41,7 @@ export function Auth() {
           body: { email, password }
         });
         await refresh();
-        navigate("/");
+        navigate("/dashboard");
       } 
       else if (mode === "forgot") {
         const res = await api<{ message: string }>("/api/auth/forgot-password", {
