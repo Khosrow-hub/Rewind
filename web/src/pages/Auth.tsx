@@ -9,7 +9,7 @@ export function Auth() {
   const [searchParams] = useSearchParams();
   const tokenFromUrl = searchParams.get("token");
 
-  // Automatically set mode to "reset" if there is a token in the URL
+  // Only start in "reset" mode if they arrived via an email link
   const [mode, setMode] = useState<Mode>(tokenFromUrl ? "reset" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,8 +48,8 @@ export function Auth() {
           method: "POST",
           body: { email }
         });
+        // We DO NOT change the mode here. We just show the success message.
         setMessage("Check your email for a reset link.");
-        // We don't flip to reset mode anymore, we wait for them to click the email
       }
       else if (mode === "reset") {
         const res = await api<{ message: string }>("/api/auth/reset-password", {
@@ -101,12 +101,12 @@ export function Auth() {
           />
         )}
 
-        {/* Only show the token input if they are on the reset screen but the URL didn't have a token */}
+        {/* Only show the token input if they are on the reset screen but the URL didn't have a token (e.g. they pasted it manually) */}
         {mode === "reset" && !tokenFromUrl && (
           <input
             className="field"
             type="text"
-            placeholder="Reset Token"
+            placeholder="Paste your Reset Token"
             value={resetToken}
             onChange={(e) => setResetToken(e.target.value)}
             required
