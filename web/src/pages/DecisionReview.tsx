@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   useReviewContext,
@@ -7,12 +7,14 @@ import {
   useSubmitReview
 } from "../features/reviews/useReview";
 import { useQueryClient } from "@tanstack/react-query";
+import { useToast } from "../features/toast/ToastContext";
 
 export function DecisionReview() {
   const { id } = useParams<{ id: string }>();
   const decisionId = id!;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const ctx = useReviewContext(decisionId);
   const reveal = useRevealSnapshot(decisionId);
@@ -27,17 +29,10 @@ export function DecisionReview() {
   const [wouldDecideAgain, setWouldDecideAgain] = useState<"YES" | "MAYBE" | "NO">("YES");
   const [lesson, setLesson] = useState("");
   
-  const [assumptionResults, setAssumptionResults] = useState<Record<string, "TRUE" | "FALSE" | "PARTIAL">>({});
+  // Allow undefined so they start unselected
+  const [assumptionResults, setAssumptionResults] = useState<Record<string, "TRUE" | "FALSE" | "PARTIAL" | undefined>>({});
 
   const assumptions = reveal.data?.decision.assumptions || [];
-
-  useEffect(() => {
-    if (assumptions.length > 0 && Object.keys(assumptionResults).length === 0) {
-      const initial: Record<string, "TRUE" | "FALSE" | "PARTIAL"> = {};
-      assumptions.forEach((a) => { initial[a.id] = "TRUE"; });
-      setAssumptionResults(initial);
-    }
-  }, [assumptions, assumptionResults]);
 
   if (ctx.isLoading || reveal.isLoading) {
     return <p className="text-sm text-inkSoft">Loading</p>;
@@ -68,10 +63,13 @@ export function DecisionReview() {
   function handleAutopsySubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    const formattedResults = Object.entries(assumptionResults).map(([id, result]) => ({
-      assumptionId: id,
-      result
-    }));
+    // Filter out any assumptions the user left blank
+    const formattedResults = Object.entries(assumptionResults)
+      .filter(([_, result]) => result !== undefined)
+      .map(([id, result]) => ({
+        assumptionId: id,
+        result: result as "TRUE" | "FALSE" | "PARTIAL"
+      }));
 
     submitReview.mutate(
       {
@@ -86,7 +84,11 @@ export function DecisionReview() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["decisions"] });
+          showToast("Autopsy completed.");
           navigate("/decisions");
+        },
+        onError: (err: any) => {
+          showToast(err.message || "Failed to complete review.", "error");
         }
       }
     );
@@ -230,7 +232,7 @@ export function DecisionReview() {
 
             {assumptions.length > 0 && (
               <div className="border-t border-ink/10 pt-6">
-                <label className="label mb-4 block text-ink">Your assumptions</label>
+                <label className="label mb-4 block text-ink">Your assumptions (Select one for each)</label>
                 <div className="space-y-4">
                   {assumptions.map((a) => (
                     <div key={a.id} className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-cream p-4 rounded-xl shadow-neu-sm">

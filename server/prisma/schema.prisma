@@ -142,6 +142,7 @@ model DecisionOption {
 // ---------------------------------------------------------------
 enum AssumptionResult {
   UNVERIFIED
+  UNKNOWN
   TRUE
   FALSE
   PARTIAL
