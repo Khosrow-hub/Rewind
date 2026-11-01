@@ -10,165 +10,123 @@ async function main() {
   const password = "password123";
   const passwordHash = await argon2.hash(password, { type: argon2.argon2id });
 
-  console.log("Generated hash:", passwordHash);
-
   await prisma.user.deleteMany({ where: { email } });
 
   const user = await prisma.user.create({
-    data: {
-      email,
-      passwordHash
-    }
+    data: { email, passwordHash }
   });
 
   console.log("Created user:", user.email);
 
-  // 1. The Startup Job
-  const decision1 = await prisma.decision.create({
-    data: {
-      userId: user.id,
-      title: "Take the startup job",
-      reasoning: "Faster growth and equity upside. I can tolerate the risk.",
-      expectedOutcome: "Salary up thirty percent and real architecture experience.",
-      probability: 80,
-      importance: Importance.HIGH,
-      status: "REVIEWED",
-      reviewAt: new Date(),
-      reviewedAt: new Date(),
-      options: {
-        create: [
-          { label: "Join startup", position: 0 },
-          { label: "Stay put", position: 1 }
-        ]
+  // Helper to create decision with timeline events
+  async function createSeededDecision(data: any, daysAgo: number) {
+    const createdAt = new Date();
+    createdAt.setDate(createdAt.getDate() - daysAgo);
+
+    const decision = await prisma.decision.create({
+      data: {
+        userId: user.id,
+        title: data.title,
+        reasoning: data.reasoning,
+        expectedOutcome: data.expectedOutcome,
+        probability: data.probability,
+        importance: data.importance,
+        status: "REVIEWED",
+        createdAt,
+        updatedAt: createdAt,
+        reviewAt: createdAt,
+        reviewedAt: createdAt,
+        options: {
+          create: [
+            { label: "Yes", position: 0 },
+            { label: "No", position: 1 }
+          ]
+        }
+      },
+      include: { options: true }
+    });
+
+    await prisma.decision.update({
+      where: { id: decision.id },
+      data: { chosenOptionId: decision.options[0].id }
+    });
+
+    // ADD TIMELINE EVENTS
+    await prisma.decisionEvent.createMany({
+      data: [
+        {
+          decisionId: decision.id,
+          type: "DECISION_CREATED",
+          payload: { title: data.title },
+          createdAt: createdAt
+        },
+        {
+          decisionId: decision.id,
+          type: "REPLAY_SUBMITTED",
+          payload: { choice: "Yes" },
+          createdAt: new Date(createdAt.getTime() + 1000 * 60 * 60 * 24) // 1 day later
+        },
+        {
+          decisionId: decision.id,
+          type: "FINAL_REVIEW_ADDED",
+          payload: { outcomeMet: data.outcomeMet },
+          createdAt: new Date(createdAt.getTime() + 1000 * 60 * 60 * 24 * 7) // 7 days later
+        }
+      ]
+    });
+
+    await prisma.decisionReview.create({
+      data: {
+        decisionId: decision.id,
+        kind: "FINAL",
+        whatHappened: data.whatHappened,
+        outcomeMet: data.outcomeMet,
+        processSound: data.processSound,
+        wouldDecideAgain: data.outcomeMet === "FULLY" ? "YES" : "MAYBE",
+        lesson: data.lesson,
+        createdAt: new Date(createdAt.getTime() + 1000 * 60 * 60 * 24 * 7)
       }
-    },
-    include: { options: true }
-  });
+    });
 
-  await prisma.decision.update({
-    where: { id: decision1.id },
-    data: { chosenOptionId: decision1.options[0].id }
-  });
-
-  await prisma.decisionReview.create({
-    data: {
-      decisionId: decision1.id,
-      kind: "FINAL",
-      whatHappened: "Good experience, salary lower than expected.",
-      outcomeMet: "PARTIALLY",
-      processSound: "YES",
-      wouldDecideAgain: "MAYBE",
-      lesson: "Evaluate learning and salary independently."
-    }
-  });
-
-  const tag1 = await prisma.tag.upsert({
-    where: { userId_name: { userId: user.id, name: "career" } },
-    create: { userId: user.id, name: "career" },
-    update: {}
-  });
-
-  await prisma.decisionTag.create({
-    data: { decisionId: decision1.id, tagId: tag1.id }
-  });
-
-  // 2. The Laptop Purchase
-  const decision2 = await prisma.decision.create({
-    data: {
-      userId: user.id,
-      title: "Buy the M3 MacBook Pro",
-      reasoning: "My old laptop is too slow for compiling large projects.",
-      expectedOutcome: "Compile times drop by half and I can work on the couch.",
-      probability: 95,
-      importance: Importance.MEDIUM,
-      status: "REVIEWED",
-      reviewAt: new Date(),
-      reviewedAt: new Date(),
-      options: {
-        create: [
-          { label: "Buy it", position: 0 },
-          { label: "Wait another year", position: 1 }
-        ]
+    if (data.tags) {
+      for (const tagName of data.tags) {
+        const tag = await prisma.tag.upsert({
+          where: { userId_name: { userId: user.id, name: tagName } },
+          create: { userId: user.id, name: tagName },
+          update: {}
+        });
+        await prisma.decisionTag.create({
+          data: { decisionId: decision.id, tagId: tag.id }
+        });
       }
-    },
-    include: { options: true }
-  });
-
-  await prisma.decision.update({
-    where: { id: decision2.id },
-    data: { chosenOptionId: decision2.options[0].id }
-  });
-
-  await prisma.decisionReview.create({
-    data: {
-      decisionId: decision2.id,
-      kind: "FINAL",
-      whatHappened: "It is blazing fast and the battery is incredible.",
-      outcomeMet: "FULLY",
-      processSound: "YES",
-      wouldDecideAgain: "YES",
-      lesson: "The M3 chips are definitely worth the upgrade."
     }
-  });
+  }
 
-  const tag2 = await prisma.tag.upsert({
-    where: { userId_name: { userId: user.id, name: "tech" } },
-    create: { userId: user.id, name: "tech" },
-    update: {}
-  });
+  await createSeededDecision({
+    title: "Take the startup job",
+    reasoning: "Faster growth and equity upside.",
+    expectedOutcome: "Salary up thirty percent and real architecture experience.",
+    probability: 80,
+    importance: Importance.HIGH,
+    tags: ["career"],
+    outcomeMet: "PARTIALLY",
+    whatHappened: "Good experience, but the salary was lower than expected.",
+    processSound: "YES",
+    lesson: "Evaluate learning and salary independently."
+  }, 180);
 
-  await prisma.decisionTag.create({
-    data: { decisionId: decision2.id, tagId: tag2.id }
-  });
-
-  // 3. The Index Fund
-  const decision3 = await prisma.decision.create({
-    data: {
-      userId: user.id,
-      title: "Invest in the S&P 500",
-      reasoning: "Historically returns 8% annually over the long term.",
-      expectedOutcome: "Steady growth over 5 years.",
-      probability: 90,
-      importance: Importance.HIGH,
-      status: "REVIEWED",
-      reviewAt: new Date(),
-      reviewedAt: new Date(),
-      options: {
-        create: [
-          { label: "Invest", position: 0 },
-          { label: "Keep cash", position: 1 }
-        ]
-      }
-    },
-    include: { options: true }
-  });
-
-  await prisma.decision.update({
-    where: { id: decision3.id },
-    data: { chosenOptionId: decision3.options[0].id }
-  });
-
-  await prisma.decisionReview.create({
-    data: {
-      decisionId: decision3.id,
-      kind: "FINAL",
-      whatHappened: "Up 12% this year.",
-      outcomeMet: "FULLY",
-      processSound: "YES",
-      wouldDecideAgain: "YES",
-      lesson: "Boring investing works."
-    }
-  });
-
-  const tag3 = await prisma.tag.upsert({
-    where: { userId_name: { userId: user.id, name: "finance" } },
-    create: { userId: user.id, name: "finance" },
-    update: {}
-  });
-
-  await prisma.decisionTag.create({
-    data: { decisionId: decision3.id, tagId: tag3.id }
-  });
+  await createSeededDecision({
+    title: "Buy the M3 MacBook Pro",
+    reasoning: "My old laptop is too slow.",
+    expectedOutcome: "Compile times drop by half.",
+    probability: 95,
+    importance: Importance.MEDIUM,
+    tags: ["tech"],
+    outcomeMet: "FULLY",
+    whatHappened: "It is blazing fast.",
+    processSound: "YES",
+    lesson: "Worth the upgrade."
+  }, 90);
 
   console.log("Seed complete. You can log in with demo@rewind.com / password123");
 }

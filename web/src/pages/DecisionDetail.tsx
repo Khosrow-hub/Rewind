@@ -32,19 +32,19 @@ export function DecisionDetail() {
     });
   };
 
-  // Helper to get a clean title and color for the timeline event
+  // Helper to get a clean title for the timeline event
   const getEventDisplay = (type: string) => {
     switch (type) {
       case "DECISION_CREATED":
-        return { title: "Decision logged", color: "bg-blue-500" };
+        return { title: "Decision logged" };
       case "REPLAY_SUBMITTED":
-        return { title: "Replay submitted", color: "bg-amber" };
+        return { title: "Replay submitted" };
       case "FINAL_REVIEW_ADDED":
-        return { title: "Autopsy completed", color: "bg-green-500" };
+        return { title: "Autopsy completed" };
       case "ASSUMPTION_RESOLVED":
-        return { title: "Assumption verified", color: "bg-purple-500" };
+        return { title: "Assumption verified" };
       default:
-        return { title: type.replace(/_/g, " ").toLowerCase(), color: "bg-inkSoft" };
+        return { title: type.replace(/_/g, " ").toLowerCase() };
     }
   };
 
@@ -144,13 +144,15 @@ export function DecisionDetail() {
           <div className="bento h-full">
             <h2 className="label mb-6">Replay timeline</h2>
             
-            <div className="relative border-l-2 border-ink/10 ml-3 pl-8 space-y-8 pb-4">
-              {d.events.map((evt: any, index: number) => {
+            <div className="relative border-l border-ink/10 ml-2 pl-6 space-y-8 pb-4">
+              {d.events.map((evt: any) => {
                 const display = getEventDisplay(evt.type);
                 return (
                   <div key={evt.id} className="relative">
-                    {/* Glowing Node */}
-                    <div className={`absolute -left-[41px] top-1 h-4 w-4 rounded-full border-4 border-cream ${display.color} shadow-neu-sm`} />
+                    {/* Neumorphic Node: Pressed into the page */}
+                    <div 
+                      className="absolute -left-[31px] top-1 h-3 w-3 rounded-full bg-cream shadow-neu-pressed" 
+                    />
                     
                     <p className="text-xs font-bold text-inkSoft mb-1">
                       {formatDate(evt.createdAt)}
