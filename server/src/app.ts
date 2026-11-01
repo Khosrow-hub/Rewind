@@ -13,6 +13,9 @@ import { errorHandler } from "./middleware/errorHandler.js";
 export function createApp() {
   const app = express();
 
+  // ADD THIS LINE: Trust the Render/Cloudflare proxy
+  app.set("trust proxy", 1);
+
   const allowedOrigins = env.CORS_ORIGIN.split(",").map((s) => s.trim());
 
   app.use(
