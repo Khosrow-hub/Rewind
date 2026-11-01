@@ -61,7 +61,6 @@ export async function revokeOtherSessions(userId: string, currentToken: string) 
     }
   });
 }
-
 export async function createPasswordReset(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
   const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
@@ -79,12 +78,13 @@ export async function createPasswordReset(email: string) {
 
   console.log(`[PASSWORD RESET] Token for ${email}: ${token}`);
   
-  try {
-    await sendPasswordResetEmail(user.email, token);
-    console.log(`[EMAIL SENT] Successfully sent to ${user.email}`);
-  } catch (error) {
-    console.error(`[EMAIL ERROR] Failed to send to ${user.email}:`, error);
-  }
+  // TODO: Uncomment this when we have a verified custom domain on Resend.
+  // try {
+  //   await sendPasswordResetEmail(user.email, token);
+  //   console.log(`[EMAIL SENT] Successfully sent to ${user.email}`);
+  // } catch (error) {
+  //   console.error(`[EMAIL ERROR] Failed to send to ${user.email}:`, error);
+  // }
   
   return { token, email: user.email };
 }
