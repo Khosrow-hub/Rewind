@@ -69,17 +69,24 @@ export function Settings() {
         {/* SESSIONS */}
         <div className="bento">
           <h2 className="text-xl font-bold tracking-tight">Active sessions</h2>
-          <p className="mt-2 text-sm text-inkSoft mb-6">
-            You are currently logged in on {data?.sessions.length || 0} device(s).
-          </p>
           
-          <button 
-            onClick={revokeAll} 
-            disabled={isRevoking || data?.sessions.length === 1}
-            className="btn-primary w-full text-red-500 shadow-neu-flat hover:shadow-neu-pressed disabled:opacity-50"
-          >
-            {isRevoking ? "Revoking..." : "Log out of all other devices"}
-          </button>
+          {isLoading ? (
+            <p className="mt-2 text-sm text-inkSoft mb-6">Loading sessions...</p>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-inkSoft mb-6">
+                You are currently logged in on {data?.sessions.length || 1} device(s).
+              </p>
+              
+              <button 
+                onClick={revokeAll} 
+                disabled={isRevoking || (data?.sessions.length || 1) <= 1}
+                className="btn-primary w-full text-red-500 shadow-neu-flat hover:shadow-neu-pressed disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isRevoking ? "Revoking..." : "Log out of all other devices"}
+              </button>
+            </>
+          )}
         </div>
 
         {/* ACCOUNT */}
