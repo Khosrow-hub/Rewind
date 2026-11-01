@@ -71,3 +71,11 @@ export async function remove(req: Request, res: Response) {
     return res.status(404).json({ error: "Not found" });
   }
 }
+export async function count(req: Request, res: Response) {
+  try {
+    const total = await service.countDecisions(userIdOf(req));
+    return res.json({ total });
+  } catch {
+    return res.status(500).json({ error: "Server error" });
+  }
+}

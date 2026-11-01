@@ -197,3 +197,6 @@ export async function deleteDecision(userId: string, id: string) {
   if (!existing) throw new Error("NOT_FOUND");
   await prisma.decision.delete({ where: { id } });
 }
+export async function countDecisions(userId: string) {
+  return prisma.decision.count({ where: { userId } });
+}

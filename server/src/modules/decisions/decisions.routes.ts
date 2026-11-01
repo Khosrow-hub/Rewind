@@ -10,3 +10,4 @@ decisionsRouter.get("/", controller.list);
 decisionsRouter.get("/:id", controller.detail);
 decisionsRouter.patch("/:id", controller.update);
 decisionsRouter.delete("/:id", controller.remove);
+decisionsRouter.get("/count", controller.count);

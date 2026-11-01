@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useDashboard } from "../features/dashboard/useDashboard";
+import { useOnboardingCheck } from "../features/dashboard/useOnboardingCheck";
 import { BentoGrid } from "../components/bento/BentoGrid";
 import { BentoCard } from "../components/bento/BentoCard";
 import { DecisionCard } from "../features/decisions/DecisionCard";
@@ -7,13 +8,13 @@ import { Skeleton } from "../components/ui/skeleton";
 import { Onboarding } from "../components/dashboard/Onboarding";
 
 export function Dashboard() {
-  // We add decisionsData to check the raw array length
-  const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions, decisionsData } = useDashboard();
+  const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions } = useDashboard();
+  const { data: countData, isLoading: isCountLoading } = useOnboardingCheck();
 
   if (isError) return <p className="text-sm font-bold text-red-500 p-8">Could not load dashboard.</p>;
 
-  // If decisionsData exists and has length 0, it's a new user.
-  const isNewUser = !isLoading && decisionsData !== undefined && decisionsData.length === 0;
+  // If the count is explicitly 0, they are a new user.
+  const isNewUser = !isCountLoading && countData?.total === 0;
 
   return (
     <div>
@@ -31,7 +32,7 @@ export function Dashboard() {
         )}
       </header>
 
-      {isLoading ? (
+      {isLoading || isCountLoading ? (
         <BentoGrid>
           <BentoCard span="twoThirds">
             <Skeleton className="h-4 w-24 mb-4" />
