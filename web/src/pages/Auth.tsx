@@ -1,21 +1,32 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../features/auth/AuthContext";
 
 type Mode = "login" | "signup" | "forgot" | "reset";
 
 export function Auth() {
-  const [mode, setMode] = useState<Mode>("login");
+  const [searchParams] = useSearchParams();
+  const tokenFromUrl = searchParams.get("token");
+
+  // Automatically set mode to "reset" if there is a token in the URL
+  const [mode, setMode] = useState<Mode>(tokenFromUrl ? "reset" : "login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [resetToken, setResetToken] = useState(""); // For testing
+  const [resetToken, setResetToken] = useState(tokenFromUrl || "");
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   
   const { refresh } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (tokenFromUrl) {
+      setResetToken(tokenFromUrl);
+      setMode("reset");
+    }
+  }, [tokenFromUrl]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,15 +48,15 @@ export function Auth() {
           method: "POST",
           body: { email }
         });
-        setMessage(res.message);
-        setMode("reset"); // Flip to reset mode
+        setMessage("Check your email for a reset link.");
+        // We don't flip to reset mode anymore, we wait for them to click the email
       }
       else if (mode === "reset") {
         const res = await api<{ message: string }>("/api/auth/reset-password", {
           method: "POST",
           body: { token: resetToken, newPassword: password }
         });
-        setMessage(res.message);
+        setMessage("Password updated! You can now log in.");
         setMode("login");
       }
     } catch (err) {
@@ -62,8 +73,8 @@ export function Auth() {
       <p className="mt-2 text-sm text-inkSoft">
         {mode === "login" && "Sign in to your account"}
         {mode === "signup" && "Create a new account"}
-        {mode === "forgot" && "Enter your email to reset your password"}
-        {mode === "reset" && "Enter the reset token and your new password"}
+        {mode === "forgot" && "Enter your email to receive a reset link"}
+        {mode === "reset" && "Enter your new password"}
       </p>
 
       <form onSubmit={submit} className="mt-8 flex flex-col gap-4">
@@ -90,11 +101,12 @@ export function Auth() {
           />
         )}
 
-        {mode === "reset" && (
+        {/* Only show the token input if they are on the reset screen but the URL didn't have a token */}
+        {mode === "reset" && !tokenFromUrl && (
           <input
             className="field"
             type="text"
-            placeholder="Reset Token (from Render logs)"
+            placeholder="Reset Token"
             value={resetToken}
             onChange={(e) => setResetToken(e.target.value)}
             required
@@ -108,7 +120,7 @@ export function Auth() {
           {busy ? "Working..." : 
            mode === "login" ? "Sign in" : 
            mode === "signup" ? "Create account" : 
-           mode === "forgot" ? "Send Reset Link" : "Reset Password"}
+           mode === "forgot" ? "Send Reset Link" : "Update Password"}
         </button>
       </form>
 

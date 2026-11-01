@@ -6,6 +6,7 @@ import {
   sessionExpiryDate
 } from "../../lib/session.js";
 import crypto from "node:crypto";
+import { sendPasswordResetEmail } from "../../lib/email.js";
 
 export async function signup(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -66,20 +67,29 @@ export async function revokeOtherSessions(userId: string, currentToken: string) 
 
 // ... keep existing imports
 
+// Add this import at the top
+
+
 export async function createPasswordReset(email: string) {
   const normalizedEmail = email.trim().toLowerCase();
   const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
-  if (!user) return null; // Don't reveal if user exists or not for security
+  if (!user) return null; 
 
   const token = crypto.randomBytes(32).toString("hex");
   const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
   
   const expiresAt = new Date();
-  expiresAt.setHours(expiresAt.getHours() + 1); // Valid for 1 hour
+  expiresAt.setHours(expiresAt.getHours() + 1); 
 
   await prisma.passwordReset.create({
     data: { userId: user.id, tokenHash, expiresAt }
   });
+
+  // SEND THE EMAIL
+  await sendPasswordResetEmail(user.email, token);
+  
+  return { token, email: user.email };
+}
 
   // In production, you would email this token to the user.
   // For now, we return it so the controller can log it.

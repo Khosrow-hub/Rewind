@@ -6,7 +6,8 @@ const schema = z.object({
   SESSION_TTL_DAYS: z.coerce.number().int().positive().default(7),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
-  CORS_ORIGIN: z.string().default("http://localhost:5173")
+  CORS_ORIGIN: z.string().default("http://localhost:5173"),
+  RESEND_API_KEY: z.string().min(1)
 });
 
 const parsed = schema.safeParse(process.env);

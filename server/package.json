@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-   "scripts": {
+  "scripts": {
     "dev": "tsx watch --env-file=.env src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
@@ -21,6 +21,7 @@
     "express": "^4.21.2",
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^8.7.2",
+    "resend": "^6.37.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
