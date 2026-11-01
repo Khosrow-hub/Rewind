@@ -23,10 +23,10 @@ model User {
   decisions     Decision[]
   tags          Tag[]
   sessions      Session[]
+  passwordResets PasswordReset[] // <--- ADD THIS LINE
 
   @@index([email])
 }
-
 // ---------------------------------------------------------------
 // SESSION (cookie based auth, short lived)
 // ---------------------------------------------------------------
