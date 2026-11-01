@@ -4,21 +4,22 @@ import * as authService from "./auth.service.js";
 import { signupSchema, loginSchema } from "./auth.schema.js";
 
 function setCookie(res: Response, token: string, expiresAt: Date) {
-  // Because Vercel proxies /api, the frontend and backend appear as the same domain.
+  const isProd = env.NODE_ENV === "production";
   res.cookie(env.SESSION_COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: env.NODE_ENV === "production",
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd,
     expires: expiresAt,
-    path: "/",
+    path: "/"
   });
 }
 
 function clearCookie(res: Response) {
+  const isProd = env.NODE_ENV === "production";
   res.clearCookie(env.SESSION_COOKIE_NAME, {
     path: "/",
-    sameSite: "lax",
-    secure: env.NODE_ENV === "production",
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd
   });
 }
 
@@ -63,4 +64,24 @@ export async function me(req: Request, res: Response) {
   const userId = (req as Request & { userId?: string }).userId;
   if (!userId) return res.status(401).json({ error: "Not authenticated" });
   return res.json({ userId });
+}
+
+// NEW: Get sessions
+export async function getSessions(req: Request, res: Response) {
+  const userId = (req as Request & { userId?: string }).userId;
+  if (!userId) return res.status(401).json({ error: "Not authenticated" });
+  
+  const sessions = await authService.getUserSessions(userId);
+  return res.json({ sessions });
+}
+
+// NEW: Revoke others
+export async function revokeOthers(req: Request, res: Response) {
+  const userId = (req as Request & { userId?: string }).userId;
+  const token = req.cookies?.[env.SESSION_COOKIE_NAME];
+  
+  if (!userId || !token) return res.status(401).json({ error: "Not authenticated" });
+  
+  await authService.revokeOtherSessions(userId, token);
+  return res.status(204).send();
 }

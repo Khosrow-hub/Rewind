@@ -42,3 +42,22 @@ export async function destroySession(token: string) {
   const tokenHash = hashSessionToken(token);
   await prisma.session.deleteMany({ where: { tokenHash } });
 }
+
+// NEW: Get all active sessions for user
+export async function getUserSessions(userId: string) {
+  return prisma.session.findMany({
+    where: { userId, expiresAt: { gt: new Date() } },
+    select: { id: true, createdAt: true, expiresAt: true }
+  });
+}
+
+// NEW: Revoke all sessions except the current one
+export async function revokeOtherSessions(userId: string, currentToken: string) {
+  const currentHash = hashSessionToken(currentToken);
+  await prisma.session.deleteMany({
+    where: {
+      userId,
+      tokenHash: { not: currentHash }
+    }
+  });
+}
