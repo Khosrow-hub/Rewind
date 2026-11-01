@@ -7,13 +7,13 @@ import { Skeleton } from "../components/ui/skeleton";
 import { Onboarding } from "../components/dashboard/Onboarding";
 
 export function Dashboard() {
-  const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions } = useDashboard();
+  // We add decisionsData to check the raw array length
+  const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions, decisionsData } = useDashboard();
 
   if (isError) return <p className="text-sm font-bold text-red-500 p-8">Could not load dashboard.</p>;
 
-  // Calculate total decisions to check if this is a new user
-  const totalDecisions = recentDecisions.length + metrics.pendingCount + metrics.attentionCount;
-  const isNewUser = !isLoading && totalDecisions === 0;
+  // If decisionsData exists and has length 0, it's a new user.
+  const isNewUser = !isLoading && decisionsData !== undefined && decisionsData.length === 0;
 
   return (
     <div>

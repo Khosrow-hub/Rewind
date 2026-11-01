@@ -5,7 +5,8 @@ export function useDashboard() {
   const decisionsQuery = useDecisions();
   const patternsQuery = usePatterns();
 
-  const decisions = decisionsQuery.data?.decisions ?? [];
+  const decisionsData = decisionsQuery.data?.decisions;
+  const decisions = decisionsData ?? [];
   
   const dueCount = decisions.filter((d) => d.reviewState === "due").length;
   const overdueCount = decisions.filter((d) => d.reviewState === "overdue").length;
@@ -18,6 +19,7 @@ export function useDashboard() {
   return {
     isLoading: decisionsQuery.isLoading || patternsQuery.isLoading,
     isError: decisionsQuery.isError || patternsQuery.isError,
+    decisionsData, // Added this
     metrics: {
       dueCount,
       overdueCount,
