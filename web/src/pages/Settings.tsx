@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useAuth } from "../features/auth/AuthContext";
 import { api } from "../lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "../features/toast/ToastContext";
+
+const { showToast } = useToast();
 
 const API_BASE = "";
 
@@ -24,14 +27,14 @@ export function Settings() {
     refetchOnMount: "always"
   });
 
-  async function revokeAll() {
+async function revokeAll() {
     setIsRevoking(true);
     try {
       await api("/api/auth/sessions", { method: "DELETE" });
-      queryClient.setQueryData(["sessions"], { sessions: [{ id: "current" }] }); // Instantly update UI
-      alert("All other devices have been logged out.");
+      queryClient.setQueryData(["sessions"], { sessions: [{ id: "current" }] });
+      showToast("All other devices have been logged out.");
     } catch (err) {
-      alert("Failed to revoke sessions.");
+      showToast("Failed to revoke sessions.", "error");
     } finally {
       setIsRevoking(false);
     }

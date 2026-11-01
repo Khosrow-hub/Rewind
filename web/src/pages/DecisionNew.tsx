@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { useCreateDecision } from "../features/decisions/useCreateDecision";
 import type { Importance } from "../lib/api";
 import { importanceLabel } from "../lib/format";
+import { useToast } from "../features/toast/ToastContext";
+
+const { showToast } = useToast();
 
 const defaultDays = (importance: Importance) => {
   const map: Record<Importance, number> = {
@@ -64,11 +67,11 @@ export function DecisionNew() {
       ? `${expectedOutcome}\n\n--- PRE-MORTEM ---\n${preMortem}`
       : expectedOutcome;
 
-    mutate(
+mutate(
       {
         title,
         reasoning,
-        expectedOutcome: combinedOutcome, // Send combined
+        expectedOutcome: combinedOutcome,
         probability,
         importance,
         options: validOptions.map(o => ({ label: o.label })),
@@ -81,7 +84,13 @@ export function DecisionNew() {
         assumptions: validAssumptions
       },
       {
-        onSuccess: () => navigate("/decisions")
+        onSuccess: () => {
+          showToast("Decision saved successfully.");
+          navigate("/decisions");
+        },
+        onError: (err: any) => {
+          showToast(err.message || "Failed to save decision.", "error");
+        }
       }
     );
   }
