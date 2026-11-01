@@ -5,6 +5,7 @@ import {
   hashSessionToken,
   sessionExpiryDate
 } from "../../lib/session.js";
+import crypto from "node:crypto";
 
 export async function signup(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -60,4 +61,55 @@ export async function revokeOtherSessions(userId: string, currentToken: string) 
       tokenHash: { not: currentHash }
     }
   });
+}
+
+
+// ... keep existing imports
+
+export async function createPasswordReset(email: string) {
+  const normalizedEmail = email.trim().toLowerCase();
+  const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+  if (!user) return null; // Don't reveal if user exists or not for security
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 1); // Valid for 1 hour
+
+  await prisma.passwordReset.create({
+    data: { userId: user.id, tokenHash, expiresAt }
+  });
+
+  // In production, you would email this token to the user.
+  // For now, we return it so the controller can log it.
+  return { token, email: user.email };
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+  
+  const reset = await prisma.passwordReset.findUnique({
+    where: { tokenHash },
+    include: { user: true }
+  });
+
+  if (!reset) throw new Error("INVALID_TOKEN");
+  if (reset.usedAt) throw new Error("TOKEN_USED");
+  if (reset.expiresAt < new Date()) throw new Error("TOKEN_EXPIRED");
+
+  const passwordHash = await hashPassword(newPassword);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: reset.userId },
+      data: { passwordHash }
+    }),
+    prisma.passwordReset.update({
+      where: { id: reset.id },
+      data: { usedAt: new Date() }
+    }),
+    // Log out all devices for security
+    prisma.session.deleteMany({ where: { userId: reset.userId } })
+  ]);
 }

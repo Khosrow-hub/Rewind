@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { env } from "../../config/env.js";
 import * as authService from "./auth.service.js";
 import { signupSchema, loginSchema } from "./auth.schema.js";
-
+import { z } from "zod";
 function setCookie(res: Response, token: string, expiresAt: Date) {
   const isProd = env.NODE_ENV === "production";
   res.cookie(env.SESSION_COOKIE_NAME, token, {
@@ -86,4 +86,35 @@ export async function revokeOthers(req: Request, res: Response) {
   
   await authService.revokeOtherSessions(userId, token);
   return res.status(204).send();
+}
+
+
+export async function forgotPassword(req: Request, res: Response) {
+  const schema = z.object({ email: z.string().email() });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Invalid email" });
+
+  const result = await authService.createPasswordReset(parsed.data.email);
+  
+  if (result) {
+    // IN PRODUCTION: Send email here.
+    // FOR TESTING: Log the token to Render so we can copy it.
+    console.log(`[PASSWORD RESET] Token for ${result.email}: ${result.token}`);
+  }
+
+  // Always return 200 so attackers can't guess valid emails
+  return res.json({ message: "If that email exists, a reset link has been sent." });
+}
+
+export async function resetPassword(req: Request, res: Response) {
+  const schema = z.object({ token: z.string(), newPassword: z.string().min(8) });
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: "Invalid input" });
+
+  try {
+    await authService.resetPassword(parsed.data.token, parsed.data.newPassword);
+    return res.json({ message: "Password updated successfully." });
+  } catch (err) {
+    return res.status(400).json({ error: "Invalid or expired token." });
+  }
 }
