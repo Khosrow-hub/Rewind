@@ -11,8 +11,8 @@ const config: Config = {
         line: "var(--color-line)",
         inkSoft: "var(--color-text-soft)",
         inkFaint: "var(--color-text-faint)",
-        accent: "#E59866",      
-        accentHover: "#D35400", 
+        accent: "#95BDD7",      // NEW: Soft Sky Blue
+        accentHover: "#6A96B5", // NEW: Darker sky blue for hover states
       },
       fontFamily: {
         sans: ["Inter", "Roboto", "system-ui", "sans-serif"],
@@ -31,11 +31,8 @@ const config: Config = {
         gutter: "24px",
         card: "32px",
       },
-      // NEW: Add the shimmer keyframes
       keyframes: {
-        shimmer: {
-          "100%": { transform: "translateX(100%)" },
-        },
+        shimmer: { "100%": { transform: "translateX(100%)" } },
       },
       animation: {
         shimmer: "shimmer 1.5s infinite",

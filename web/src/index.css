@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  /* LIGHT MODE: Original Cream */
+  /* LIGHT MODE: Slightly darker off-white */
   :root {
-    --color-bg: #F0EFEA;       
+    --color-bg: #E8E8E8;       /* CHANGED: A soft, light grey instead of pure white */
     --color-text: #2C3E50;     
     --color-text-soft: #5D6D7E;
     --color-text-faint: #AAB7B8;
-    --color-line: transparent; 
+    --color-line: rgba(44, 62, 80, 0.1); 
     
     --shadow-light: #FFFFFF;   
-    --shadow-dark: #D1D0C9;    
+    --shadow-dark: #D1D1D1;    /* CHANGED: Slightly darker shadow to match the bg */
   }
 
   /* DARK MODE: Original Deep Forest */
@@ -21,7 +21,7 @@
     --color-text: #ECDFCC;     
     --color-text-soft: #A3B18A;
     --color-text-faint: #697565;
-    --color-line: transparent;
+    --color-line: rgba(236, 223, 204, 0.1);
 
     --shadow-light: #2C302C;   
     --shadow-dark: #121312;    
@@ -35,10 +35,9 @@
     @apply bg-cream text-ink font-sans antialiased transition-colors duration-300;
   }
 
+  /* FIX: Remove the ugly browser outline on focus */
   *:focus-visible {
-    outline: 2px solid var(--color-text-soft);
-    outline-offset: 4px;
-    border-radius: 8px;
+    outline: none;
   }
 }
 
@@ -100,13 +99,18 @@
     box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
   }
 
+  /* FIX: Ensure input fields keep the neumorphic look even when clicked */
   .field {
     @apply w-full rounded-xl bg-cream px-5 py-3 text-sm text-ink border-none;
     @apply placeholder:text-inkFaint;
     box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+    outline: none !important;
+    transition: box-shadow 0.2s ease;
   }
+  
   .field:focus {
-    @apply outline-none ring-0;
+    outline: none !important;
+    box-shadow: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
   }
 }
 
@@ -118,13 +122,13 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-}
-
-/* Hide default cursor only on the public landing/auth pages */
-.hide-default-cursor {
-  cursor: none;
-}
-.hide-default-cursor a,
-.hide-default-cursor button {
-  cursor: none;
+  
+  /* Hide default cursor only on public pages */
+  .hide-default-cursor {
+    cursor: none;
+  }
+  .hide-default-cursor a,
+  .hide-default-cursor button {
+    cursor: none;
+  }
 }
