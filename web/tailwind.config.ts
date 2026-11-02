@@ -11,14 +11,13 @@ const config: Config = {
         line: "var(--color-line)",
         inkSoft: "var(--color-text-soft)",
         inkFaint: "var(--color-text-faint)",
-        accent: "#E59866", // Warm terracotta
-        accentHover: "#D35400",
+        accent: "#8F7A5F",      // Bronze for light mode
+        accentHover: "#6B5843", // Darker bronze
       },
       fontFamily: {
         sans: ["Inter", "Roboto", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        // The magic Neumorphic shadows
         "neu-flat": "6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light)",
         "neu-pressed": "inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light)",
         "neu-sm": "3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light)",
