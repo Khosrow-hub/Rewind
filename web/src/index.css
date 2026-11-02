@@ -3,58 +3,119 @@
 @tailwind utilities;
 
 @layer base {
-  /* LIGHT MODE: Crisp Minimalist Slate */
+  /* LIGHT MODE: Original Cream */
   :root {
-    --color-bg: #F3F4F6;
-    --color-text: #111827;
-    --color-text-soft: #6B7280;
-    --color-text-faint: #9CA3AF;
-    --color-accent: #2563EB;
-    --color-accent-hover: #1D4ED8;
+    --color-bg: #F0EFEA;       
+    --color-text: #2C3E50;     
+    --color-text-soft: #5D6D7E;
+    --color-text-faint: #AAB7B8;
+    --color-line: transparent; 
     
-    --shadow-light: #FFFFFF;
-    --shadow-dark: #E2E8F0;
+    --shadow-light: #FFFFFF;   
+    --shadow-dark: #D1D0C9;    
   }
 
-  /* DARK MODE: Stealth Graphite */
+  /* DARK MODE: Original Deep Forest */
   .dark {
-    --color-bg: #14171A;
-    --color-text: #F9FAFB;
-    --color-text-soft: #9CA3AF;
-    --color-text-faint: #4B5563;
-    --color-accent: #3B82F6;
-    --color-accent-hover: #60A5FA;
+    --color-bg: #1E201E;       
+    --color-text: #ECDFCC;     
+    --color-text-soft: #A3B18A;
+    --color-text-faint: #697565;
+    --color-line: transparent;
 
-    --shadow-light: #1D2126;
-    --shadow-dark: #0B0C0E;
+    --shadow-light: #2C302C;   
+    --shadow-dark: #121312;    
+  }
+
+  html, body, #root {
+    height: 100%;
   }
 
   body {
-    @apply bg-cream text-ink font-sans antialiased transition-colors duration-200;
+    @apply bg-cream text-ink font-sans antialiased transition-colors duration-300;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--color-text-soft);
+    outline-offset: 4px;
+    border-radius: 8px;
   }
 }
 
 @layer components {
-  /* Elevated Neumorphic Surface */
   .bento {
-    @apply bg-cream rounded-card shadow-neu-flat p-6 transition-all duration-200 border border-white/40 dark:border-white/[0.03];
+    @apply bg-cream rounded-card border-none;
+    @apply p-6 md:p-card;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
   }
 
   .bento-interactive {
-    @apply bento cursor-pointer hover:shadow-neu-lift active:shadow-neu-pressed;
+    @apply bento transition-all duration-200 cursor-pointer;
+  }
+  .bento-interactive:hover {
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+    transform: translateY(2px);
+  }
+  .bento-interactive:active {
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+    transform: translateY(4px);
   }
 
-  /* Buttons */
+  .label {
+    @apply text-xs uppercase tracking-widest text-inkSoft font-bold;
+  }
+
+  .stat {
+    @apply text-4xl md:text-5xl font-extrabold tracking-tighter text-ink;
+  }
+
+  .stat-note {
+    @apply text-sm text-inkSoft font-medium mt-1;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-pill px-6 py-3 text-sm font-bold transition-all duration-150;
+  }
+  
   .btn-primary {
-    @apply bg-accent text-white font-semibold px-5 py-2.5 rounded-btn shadow-neu-sm transition-all duration-150 hover:brightness-110 active:shadow-neu-pressed;
+    @apply btn bg-cream text-ink;
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
   }
-
+  .btn-primary:hover {
+    color: var(--color-text-soft);
+  }
+  .btn-primary:active {
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
+  }
+  
   .btn-ghost {
-    @apply bg-cream text-inkSoft font-medium px-4 py-2 rounded-btn shadow-neu-flat transition-all hover:text-ink hover:shadow-neu-lift active:shadow-neu-pressed;
+    @apply btn text-inkSoft bg-cream;
+    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+  }
+  .btn-ghost:hover {
+    @apply text-ink;
+    box-shadow: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  }
+  .btn-ghost:active {
+    box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
   }
 
-  /* Carved Input Fields */
   .field {
-    @apply w-full rounded-btn bg-cream px-4 py-3 text-sm text-ink shadow-neu-pressed border border-black/[0.02] dark:border-white/[0.02] placeholder:text-inkFaint focus:outline-none;
+    @apply w-full rounded-xl bg-cream px-5 py-3 text-sm text-ink border-none;
+    @apply placeholder:text-inkFaint;
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+  }
+  .field:focus {
+    @apply outline-none ring-0;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
