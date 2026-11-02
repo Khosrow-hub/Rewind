@@ -7,10 +7,8 @@ export function DecisionCard({ decision }: { decision: DecisionSummary }) {
   const chosen = decision.options.find((o: DecisionOption) => o.id === decision.chosenOptionId);
   const isUrgent = decision.reviewState === "due" || decision.reviewState === "overdue";
 
-  // Update links to /dashboard
-  const targetUrl = decision.status === "PENDING" 
-    ? `/dashboard/decisions/${decision.id}/review` 
-    : `/dashboard/decisions/${decision.id}`;
+  // ALWAYS go to the detail page. We will handle the review logic there.
+  const targetUrl = `/dashboard/decisions/${decision.id}`;
 
   return (
     <Link to={targetUrl} className={`block ${isUrgent ? "bento-interactive shadow-neu-flat border-2 border-accent/20" : "bento-interactive"}`}>

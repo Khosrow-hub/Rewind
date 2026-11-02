@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useAuth } from "../features/auth/AuthContext";
-import { useToast } from "../features/toast/ToastContext"; // Added
+import { useToast } from "../features/toast/ToastContext";
 import { api } from "../lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom"; // Added
 
 const API_BASE = "";
 
@@ -14,9 +15,11 @@ type Session = {
 
 export function Settings() {
   const { logout } = useAuth();
-  const { showToast } = useToast(); // Added
+  const { showToast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate(); // Added
   const [isRevoking, setIsRevoking] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false); // Added
 
   const { data, isLoading } = useQuery({
     queryKey: ["sessions"],
@@ -35,6 +38,24 @@ export function Settings() {
       showToast("Failed to revoke sessions.", "error");
     } finally {
       setIsRevoking(false);
+    }
+  }
+
+  async function deleteAccount() {
+    const confirmed = window.confirm(
+      "Are you absolutely sure? This will permanently delete your account and every decision you have ever logged. This action cannot be undone."
+    );
+    
+    if (!confirmed) return;
+    
+    setIsDeleting(true);
+    try {
+      await api("/api/auth/account", { method: "DELETE" });
+      showToast("Account deleted.");
+      navigate("/");
+    } catch (err) {
+      showToast("Failed to delete account.", "error");
+      setIsDeleting(false);
     }
   }
 
@@ -83,6 +104,21 @@ export function Settings() {
           <h2 className="text-xl font-bold tracking-tight">Account</h2>
           <p className="mt-2 text-sm text-inkSoft">Sign out of this device.</p>
           <button onClick={logout} className="btn-ghost mt-6">Sign out</button>
+        </div>
+
+        {/* NEW: DANGER ZONE */}
+        <div className="bento border-red-500/20 bg-red-500/5">
+          <h2 className="text-xl font-bold tracking-tight text-red-500">Danger zone</h2>
+          <p className="mt-2 text-sm text-inkSoft">
+            Permanently delete your account and all associated data. This action cannot be undone.
+          </p>
+          <button 
+            onClick={deleteAccount} 
+            disabled={isDeleting}
+            className="btn-primary mt-6 bg-red-500 text-white shadow-none hover:bg-red-600 disabled:opacity-50"
+          >
+            {isDeleting ? "Deleting..." : "Delete account"}
+          </button>
         </div>
       </div>
     </div>

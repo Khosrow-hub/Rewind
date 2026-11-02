@@ -66,6 +66,7 @@ export function DecisionDetail() {
         />
       )}
 
+// Find this block inside the return statement:
       <header className="mb-10 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <Link to="/dashboard/decisions" className="text-sm font-bold text-inkSoft hover:text-accentHover mb-2 inline-block transition-colors">
@@ -84,12 +85,19 @@ export function DecisionDetail() {
           </div>
         </div>
 
-        {/* EDIT BUTTON (Only for pending decisions) */}
-        {d.status === "PENDING" && (
-          <button onClick={() => setIsEditing(true)} className="btn-ghost">
-            Edit decision
-          </button>
-        )}
+        {/* Replace this section with the new buttons */}
+        <div className="flex gap-3">
+          {d.status === "PENDING" && (
+            <>
+              <button onClick={() => setIsEditing(true)} className="btn-ghost">
+                Edit
+              </button>
+              <Link to={`/dashboard/decisions/${d.id}/review`} className="btn-primary">
+                Start Review
+              </Link>
+            </>
+          )}
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
