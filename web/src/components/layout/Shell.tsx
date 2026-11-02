@@ -1,6 +1,7 @@
 import { NavLink, Outlet, Link } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthContext";
 import { PageTransition } from "./PageTransition";
+import { CommandPalette } from "./CommandPalette"; // NEW
 
 const links = [
   { to: "/dashboard", label: "Dashboard", end: true },
@@ -19,6 +20,8 @@ export function Shell() {
 
   return (
     <div className="min-h-full flex flex-col bg-cream">
+      <CommandPalette /> {/* MOVED INSIDE THE ROUTER */}
+      
       <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-md px-4 pt-6 pb-2">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           
@@ -49,7 +52,6 @@ export function Shell() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {/* Command Palette Hint */}
             <div className="hidden lg:flex items-center gap-1 text-xs font-bold text-inkFaint px-3 py-1.5 rounded-lg bg-cream shadow-neu-sm mr-2">
               <span>Press</span>
               <kbd className="bg-cream shadow-neu-pressed px-1.5 py-0.5 rounded text-inkSoft font-mono">⌘</kbd>

@@ -5,7 +5,6 @@ import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./features/auth/AuthContext";
 import { ToastProvider } from "./features/toast/ToastContext";
 import { CustomCursor } from "./components/layout/CustomCursor";
-import { CommandPalette } from "./components/layout/CommandPalette"; // NEW
 import { router } from "./router";
 
 export default function App() {
@@ -34,7 +33,6 @@ export default function App() {
       <AuthProvider>
         <ToastProvider>
           <CustomCursor />
-          <CommandPalette />
           <RouterProvider router={router} />
         </ToastProvider>
       </AuthProvider>
