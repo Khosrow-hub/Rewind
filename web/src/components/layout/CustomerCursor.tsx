@@ -7,8 +7,10 @@ export function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Only show on public pages (Landing and Auth)
-    const isPublicPage = window.location.pathname === "/" || window.location.pathname === "/auth";
+    // Only show the custom cursor on public pages
+    const isPublicPage = 
+      window.location.pathname === "/" || 
+      window.location.pathname === "/auth";
     
     if (isPublicPage) {
       document.body.classList.add("hide-default-cursor");
@@ -44,4 +46,23 @@ export function CustomCursor() {
       document.body.classList.remove("hide-default-cursor");
     };
   }, [isVisible]);
+
+  if (!isVisible) return null;
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 w-6 h-6 rounded-full bg-accent/30 pointer-events-none z-[9999] hidden md:block"
+      animate={{
+        x: mousePosition.x - 12,
+        y: mousePosition.y - 12,
+        scale: isHovering ? 2.5 : 1,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 28,
+        mass: 0.5,
+      }}
+    />
+  );
 }
