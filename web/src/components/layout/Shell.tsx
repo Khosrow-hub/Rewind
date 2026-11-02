@@ -1,5 +1,6 @@
 import { NavLink, Outlet, Link } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthContext";
+import { PageTransition } from "./PageTransition"; // NEW
 
 const links = [
   { to: "/dashboard", label: "Dashboard", end: true },
@@ -81,7 +82,9 @@ export function Shell() {
       </header>
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-4 md:px-gutter py-8 md:py-12">
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
     </div>
   );
