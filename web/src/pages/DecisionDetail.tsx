@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useDecisionDetail } from "../features/decisions/useDecisionDetail";
 import { importanceLabel } from "../lib/format";
+import { EditDecisionModal } from "../features/decisions/EditDecisionModal";
 
 export function DecisionDetail() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, isError } = useDecisionDetail(id!);
+  const [isEditing, setIsEditing] = useState(false);
 
   if (isLoading) return <p className="text-sm text-inkSoft p-8">Loading</p>;
   if (isError || !data) return <p className="text-sm text-ink p-8">Decision not found</p>;
@@ -13,7 +16,15 @@ export function DecisionDetail() {
   const chosen = d.options.find((o) => o.id === d.chosenOptionId);
   const finalReview = d.reviews.find((r) => r.kind === "FINAL");
 
-  // Split Reasoning and Scorecard
+  let displayOutcome = d.expectedOutcome || "";
+  let displayPreMortem = "";
+  
+  if (displayOutcome.includes("--- PRE-MORTEM ---")) {
+    const parts = displayOutcome.split("--- PRE-MORTEM ---");
+    displayOutcome = parts[0].trim();
+    displayPreMortem = parts[1].trim();
+  }
+
   let displayReasoning = d.reasoning || "";
   let displayScorecard = { evidence: "", alternatives: "", risks: "" };
   
@@ -28,15 +39,6 @@ export function DecisionDetail() {
       if (line.startsWith("Alternatives:")) displayScorecard.alternatives = line.replace("Alternatives:", "").trim();
       if (line.startsWith("Risks:")) displayScorecard.risks = line.replace("Risks:", "").trim();
     });
-  }
-
-  // Split Pre-mortem
-  let displayOutcome = d.expectedOutcome || "";
-  let displayPreMortem = "";
-  if (displayOutcome.includes("--- PRE-MORTEM ---")) {
-    const parts = displayOutcome.split("--- PRE-MORTEM ---");
-    displayOutcome = parts[0].trim();
-    displayPreMortem = parts[1].trim();
   }
 
   const formatDate = (isoString: string) => {
@@ -55,9 +57,18 @@ export function DecisionDetail() {
 
   return (
     <div className="mx-auto max-w-5xl">
+      {isEditing && (
+        <EditDecisionModal
+          decisionId={d.id}
+          initialTitle={d.title}
+          initialReviewAt={d.reviewAt}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
+
       <header className="mb-10 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
-          <Link to="/decisions" className="text-sm font-bold text-inkSoft hover:text-accentHover mb-2 inline-block transition-colors">
+          <Link to="/dashboard/decisions" className="text-sm font-bold text-inkSoft hover:text-accentHover mb-2 inline-block transition-colors">
             &larr; Back to decisions
           </Link>
           <h1 className="text-3xl font-bold tracking-tight">{d.title}</h1>
@@ -72,6 +83,13 @@ export function DecisionDetail() {
             ))}
           </div>
         </div>
+
+        {/* EDIT BUTTON (Only for pending decisions) */}
+        {d.status === "PENDING" && (
+          <button onClick={() => setIsEditing(true)} className="btn-ghost">
+            Edit decision
+          </button>
+        )}
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -82,7 +100,6 @@ export function DecisionDetail() {
             <h2 className="label mb-4 text-accentHover">The original snapshot</h2>
             <p className="text-lg leading-relaxed text-ink font-medium">{displayReasoning}</p>
             
-            {/* SCORECARD DISPLAY */}
             {(displayScorecard.evidence || displayScorecard.alternatives || displayScorecard.risks) && (
               <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-ink/10 pt-6">
                 {displayScorecard.evidence && (
