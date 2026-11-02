@@ -66,7 +66,6 @@ export function DecisionDetail() {
         />
       )}
 
-// Find this block inside the return statement:
       <header className="mb-10 flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <Link to="/dashboard/decisions" className="text-sm font-bold text-inkSoft hover:text-accentHover mb-2 inline-block transition-colors">
@@ -85,7 +84,7 @@ export function DecisionDetail() {
           </div>
         </div>
 
-        {/* Replace this section with the new buttons */}
+        {/* BUTTONS */}
         <div className="flex gap-3">
           {d.status === "PENDING" && (
             <>
