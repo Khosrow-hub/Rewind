@@ -25,7 +25,6 @@ export function DecisionNew() {
   const [expectedOutcome, setExpectedOutcome] = useState("");
   const [preMortem, setPreMortem] = useState("");
   
-  // NEW: Scorecard state
   const [evidence, setEvidence] = useState("");
   const [alternatives, setAlternatives] = useState("");
   const [risks, setRisks] = useState("");
@@ -63,7 +62,6 @@ export function DecisionNew() {
       .filter((a) => a.description.trim().length > 0)
       .map((a) => ({ description: a.description }));
 
-    // Combine Reasoning and Scorecard
     let combinedReasoning = reasoning;
     if (evidence || alternatives || risks) {
       combinedReasoning += `\n\n--- SCORECARD ---\n`;
@@ -92,7 +90,8 @@ export function DecisionNew() {
       {
         onSuccess: () => {
           showToast("Decision saved successfully.");
-          navigate("/decisions");
+          // FIXED REDIRECT PATH
+          navigate("/dashboard/decisions");
         },
         onError: (err: any) => {
           showToast(err.message || "Failed to save decision.", "error");
@@ -369,7 +368,7 @@ export function DecisionNew() {
         <div className="flex justify-end gap-4 pt-4">
           <button
             type="button"
-            onClick={() => navigate("/decisions")}
+            onClick={() => navigate("/dashboard/decisions")}
             className="btn-ghost"
           >
             Cancel

@@ -85,7 +85,7 @@ export function DecisionReview() {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["decisions"] });
           showToast("Autopsy completed.");
-          navigate("/decisions");
+          navigate("/dashboard/decisions");
         },
         onError: (err: any) => {
           showToast(err.message || "Failed to complete review.", "error");
