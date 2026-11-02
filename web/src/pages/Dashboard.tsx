@@ -4,7 +4,7 @@ import { BentoGrid } from "../components/bento/BentoGrid";
 import { BentoCard } from "../components/bento/BentoCard";
 import { DecisionCard } from "../features/decisions/DecisionCard";
 import { Skeleton } from "../components/ui/Skeleton";
-import { Onboarding } from "../components/dashboard/Onboarding";
+import { Onboarding } from "../features/dashboard/Onboarding" 
 
 export function Dashboard() {
   const { isLoading, isError, metrics, needsAttention, patterns, recentDecisions } = useDashboard();
