@@ -11,8 +11,8 @@ const config: Config = {
         line: "var(--color-line)",
         inkSoft: "var(--color-text-soft)",
         inkFaint: "var(--color-text-faint)",
-        accent: "#E59866",      // The original warm terracotta
-        accentHover: "#D35400", // The original darker terracotta
+        accent: "#E59866",      
+        accentHover: "#D35400", 
       },
       fontFamily: {
         sans: ["Inter", "Roboto", "system-ui", "sans-serif"],
@@ -30,7 +30,16 @@ const config: Config = {
       spacing: {
         gutter: "24px",
         card: "32px",
-      }
+      },
+      // NEW: Add the shimmer keyframes
+      keyframes: {
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.5s infinite",
+      },
     }
   },
   plugins: []
