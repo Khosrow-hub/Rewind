@@ -119,3 +119,12 @@
     scrollbar-width: none;
   }
 }
+
+/* Hide default cursor only on the public landing/auth pages */
+.hide-default-cursor {
+  cursor: none;
+}
+.hide-default-cursor a,
+.hide-default-cursor button {
+  cursor: none;
+}
