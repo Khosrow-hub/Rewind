@@ -22,13 +22,13 @@ export async function create(req: Request, res: Response) {
     if (err instanceof Error && err.message === "INVALID_CHOSEN_OPTION") {
       return res.status(400).json({ error: "Chosen option index out of range" });
     }
-    // CATCH THE LIMIT ERROR
     if (err instanceof Error && err.message === "LIMIT_REACHED") {
       return res.status(403).json({ error: "Free tier limit reached. Upgrade to Pro to create more." });
     }
     return res.status(500).json({ error: "Server error" });
   }
 }
+
 export async function list(req: Request, res: Response) {
   const decisions = await service.listDecisions(userIdOf(req));
   return res.json({ decisions });
@@ -72,13 +72,5 @@ export async function remove(req: Request, res: Response) {
     return res.status(204).send();
   } catch {
     return res.status(404).json({ error: "Not found" });
-  }
-}
-export async function count(req: Request, res: Response) {
-  try {
-    const total = await service.countDecisions(userIdOf(req));
-    return res.json({ total });
-  } catch {
-    return res.status(500).json({ error: "Server error" });
   }
 }
