@@ -1,6 +1,7 @@
 import { usePatterns } from "../features/patterns/usePatterns";
 import { BentoGrid } from "../components/bento/BentoGrid";
 import { BentoCard } from "../components/bento/BentoCard";
+import { BrierChart } from "../features/patterns/BrierChart"; // NEW
 
 export function Patterns() {
   const { data, isLoading, isError } = usePatterns();
@@ -29,7 +30,7 @@ export function Patterns() {
         </div>
       ) : (
         <BentoGrid>
-          {/* HEADLINE STAT: The Anti-Outcome Bias Metric */}
+          {/* HEADLINE STAT */}
           <BentoCard span="twoThirds" className="shadow-neu-pressed border-none bg-cream">
             <p className="label text-accentHover">Decision quality</p>
             <div className="mt-4 flex flex-col md:flex-row md:items-baseline gap-4">
@@ -45,7 +46,7 @@ export function Patterns() {
 
           {/* BRIER SCORE */}
           <BentoCard span="third" className="shadow-neu-pressed border-none bg-cream">
-            <p className="label text-accentHover">Brier score</p>
+            <p className="label text-accentHover">Current Brier score</p>
             <div className="mt-4">
               <p className="stat text-accentHover">
                 {data.brier.score !== null ? data.brier.score : "--"}
@@ -53,10 +54,16 @@ export function Patterns() {
               <p className="stat-note mt-1 font-bold text-ink">
                 {data.brier.rating}
               </p>
-              <p className="text-xs text-inkFaint mt-3">
-                Lower is better. 0.0 is perfect prediction.
-              </p>
             </div>
+          </BentoCard>
+
+          {/* NEW: THE CHART */}
+          <BentoCard span="full">
+            <p className="label mb-2">Brier score over time</p>
+            <p className="text-sm text-inkSoft mb-4">
+              Lower is better. 0.0 is perfect prediction.
+            </p>
+            <BrierChart data={data.brier.timeline} />
           </BentoCard>
 
           {/* BLIND SPOTS */}

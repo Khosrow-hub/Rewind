@@ -9,6 +9,7 @@ export type PatternsData = {
   brier: {
     score: number | null;
     rating: string;
+    timeline: { date: string; brier: number }[]; // NEW
   };
   axes: {
     processSound: number;
