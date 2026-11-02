@@ -26,7 +26,7 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
         title: input.title,
         reasoning: input.reasoning,
         expectedOutcome: input.expectedOutcome,
-        probability: input.probability, // CHANGED
+        probability: input.probability,
         importance: input.importance,
         reviewAt: new Date(input.reviewAt),
         options: {
@@ -73,7 +73,7 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
             decisionId: created.id,
             description: a.description,
             importance: input.importance,
-            confidence: 50, // Default assumption confidence
+            confidence: 50,
           }
         });
         await tx.decisionEvent.create({
@@ -103,27 +103,15 @@ export async function listDecisions(userId: string) {
   const rows = await prisma.decision.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      status: true,
-      importance: true,
-      reviewAt: true,
-      createdAt: true,
-      probability: true,
-      chosenOptionId: true,
-      options: { orderBy: { position: "asc" }, select: { id: true, label: true, position: true } },
+    include: {
+      options: { orderBy: { position: "asc" } },
       tags: { include: { tag: true } }
-      // REMOVED: reasoning, expectedOutcome
     }
   });
 
   const now = new Date();
   return rows.map((d) => ({
     ...d,
-    // Provide a safe placeholder so the frontend card doesn't crash
-    reasoning: "Hidden until replay is submitted",
-    expectedOutcome: "Hidden until replay is submitted",
     reviewState: getReviewState({ status: d.status, reviewAt: d.reviewAt, now })
   }));
 }
@@ -205,7 +193,4 @@ export async function deleteDecision(userId: string, id: string) {
   });
   if (!existing) throw new Error("NOT_FOUND");
   await prisma.decision.delete({ where: { id } });
-}
-export async function countDecisions(userId: string) {
-  return prisma.decision.count({ where: { userId } });
 }

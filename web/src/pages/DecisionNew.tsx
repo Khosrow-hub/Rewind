@@ -2,9 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCreateDecision } from "../features/decisions/useCreateDecision";
 import { useToast } from "../features/toast/ToastContext";
+import { UpgradeModal } from "../features/decisions/UpgradeModal";
 import type { Importance } from "../lib/api";
 import { importanceLabel } from "../lib/format";
-import { UpgradeModal } from "../features/decisions/UpgradeModal";
 
 const defaultDays = (importance: Importance) => {
   const map: Record<Importance, number> = {
@@ -20,7 +20,8 @@ export function DecisionNew() {
   const navigate = useNavigate();
   const { mutate, isPending, error } = useCreateDecision();
   const { showToast } = useToast();
-  const [showUpgrade, setShowUpgrade] = useState(false);  
+  const [showUpgrade, setShowUpgrade] = useState(false);
+
   const [title, setTitle] = useState("");
   const [reasoning, setReasoning] = useState("");
   const [expectedOutcome, setExpectedOutcome] = useState("");
@@ -38,7 +39,6 @@ export function DecisionNew() {
     { id: crypto.randomUUID(), label: "" },
     { id: crypto.randomUUID(), label: "" }
   ]);
-  const [chosenId, setChosenId] = useState<string | null>(null);
   const [tags, setTags] = useState("");
   const [assumptions, setAssumptions] = useState<LocalAssumption[]>([]);
 
@@ -50,11 +50,12 @@ export function DecisionNew() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
+    // Filter out empty options
     const validOptions = options.filter((o) => o.label.trim().length > 0);
-    if (validOptions.length < 2) return;
-    
-    const chosenIndex = validOptions.findIndex((o) => o.id === chosenId);
-    if (chosenIndex === -1) return; 
+    if (validOptions.length < 2) {
+      showToast("Please fill out at least two options.", "error");
+      return;
+    }
 
     const reviewAt = new Date();
     reviewAt.setDate(reviewAt.getDate() + reviewDays);
@@ -83,7 +84,8 @@ export function DecisionNew() {
         probability,
         importance,
         options: validOptions.map(o => ({ label: o.label })),
-        chosenOptionIndex: chosenIndex,
+        // AUTOMATICALLY SELECT THE FIRST OPTION
+        chosenOptionIndex: 0, 
         reviewAt: reviewAt.toISOString(),
         tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         assumptions: validAssumptions
@@ -91,10 +93,9 @@ export function DecisionNew() {
       {
         onSuccess: () => {
           showToast("Decision saved successfully.");
-          // FIXED REDIRECT PATH
           navigate("/dashboard/decisions");
         },
-               onError: (err: any) => {
+        onError: (err: any) => {
           if (err.status === 403) {
             setShowUpgrade(true);
           } else {
@@ -107,6 +108,8 @@ export function DecisionNew() {
 
   return (
     <div className="mx-auto max-w-3xl">
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
+
       <header className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">New decision</h1>
         <p className="mt-1 text-sm text-inkSoft">
@@ -224,25 +227,24 @@ export function DecisionNew() {
 
         <div className="bento space-y-6">
           <h2 className="text-xl font-bold tracking-tight">Options</h2>
+          <p className="text-xs font-medium text-inkSoft mb-2">
+            The first option is what you chose. The rest are alternatives you considered.
+          </p>
           
-          {options.map((opt) => (
+          {options.map((opt, index) => (
             <div key={opt.id} className="flex items-center gap-4">
+              <span className="text-sm font-bold text-inkSoft w-16">
+                {index === 0 ? "Chosen" : `Alt ${index}`}
+              </span>
               <input
-                type="radio"
-                name="chosen"
-                checked={chosenId === opt.id}
-                onChange={() => setChosenId(opt.id)}
-                className="h-5 w-5 accent-accent"
-              />
-              <input
-                required={options.indexOf(opt) < 2}
+                required={index < 2}
                 className="field flex-1"
-                placeholder={`Option ${options.indexOf(opt) + 1}`}
+                placeholder={index === 0 ? "What you chose to do" : "Alternative option"}
                 value={opt.label}
                 onChange={(e) => {
                   const next = [...options];
-                  const index = next.findIndex(o => o.id === opt.id);
-                  next[index].label = e.target.value;
+                  const idx = next.findIndex(o => o.id === opt.id);
+                  next[idx].label = e.target.value;
                   setOptions(next);
                 }}
               />
@@ -251,7 +253,6 @@ export function DecisionNew() {
                   type="button"
                   onClick={() => {
                     setOptions(options.filter((o) => o.id !== opt.id));
-                    if (chosenId === opt.id) setChosenId(null);
                   }}
                   className="text-sm font-bold text-inkSoft hover:text-accentHover"
                 >
@@ -260,16 +261,13 @@ export function DecisionNew() {
               )}
             </div>
           ))}
-          <p className="text-xs font-medium text-inkSoft mt-2">
-            Select the radio button next to the option you chose.
-          </p>
 
           <button
             type="button"
             onClick={() => setOptions([...options, { id: crypto.randomUUID(), label: "" }])}
             className="text-sm font-bold text-ink hover:text-accentHover"
           >
-            Add option
+            Add alternative
           </button>
         </div>
 
@@ -383,7 +381,6 @@ export function DecisionNew() {
           </button>
         </div>
       </form>
-      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
   );
 }
