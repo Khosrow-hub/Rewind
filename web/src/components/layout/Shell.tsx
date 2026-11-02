@@ -1,6 +1,6 @@
 import { NavLink, Outlet, Link } from "react-router-dom";
 import { useAuth } from "../../features/auth/AuthContext";
-import { PageTransition } from "./PageTransition"; // NEW
+import { PageTransition } from "./PageTransition";
 
 const links = [
   { to: "/dashboard", label: "Dashboard", end: true },
@@ -49,6 +49,13 @@ export function Shell() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Command Palette Hint */}
+            <div className="hidden lg:flex items-center gap-1 text-xs font-bold text-inkFaint px-3 py-1.5 rounded-lg bg-cream shadow-neu-sm mr-2">
+              <span>Press</span>
+              <kbd className="bg-cream shadow-neu-pressed px-1.5 py-0.5 rounded text-inkSoft font-mono">⌘</kbd>
+              <kbd className="bg-cream shadow-neu-pressed px-1.5 py-0.5 rounded text-inkSoft font-mono">K</kbd>
+            </div>
+
             <button
               onClick={toggleTheme}
               className="h-10 w-10 rounded-full bg-cream shadow-neu-sm flex items-center justify-center text-sm font-bold active:shadow-neu-sm-pressed"
