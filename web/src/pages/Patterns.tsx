@@ -1,7 +1,7 @@
 import { usePatterns } from "../features/patterns/usePatterns";
 import { BentoGrid } from "../components/bento/BentoGrid";
 import { BentoCard } from "../components/bento/BentoCard";
-import { BrierChart } from "../features/patterns/BrierChart"; // NEW
+import { BrierChart } from "../features/patterns/BrierChart";
 
 export function Patterns() {
   const { data, isLoading, isError } = usePatterns();
@@ -30,7 +30,6 @@ export function Patterns() {
         </div>
       ) : (
         <BentoGrid>
-          {/* HEADLINE STAT */}
           <BentoCard span="twoThirds" className="shadow-neu-pressed border-none bg-cream">
             <p className="label text-accentHover">Decision quality</p>
             <div className="mt-4 flex flex-col md:flex-row md:items-baseline gap-4">
@@ -44,7 +43,6 @@ export function Patterns() {
             </div>
           </BentoCard>
 
-          {/* BRIER SCORE */}
           <BentoCard span="third" className="shadow-neu-pressed border-none bg-cream">
             <p className="label text-accentHover">Current Brier score</p>
             <div className="mt-4">
@@ -57,7 +55,6 @@ export function Patterns() {
             </div>
           </BentoCard>
 
-          {/* NEW: THE CHART */}
           <BentoCard span="full">
             <p className="label mb-2">Brier score over time</p>
             <p className="text-sm text-inkSoft mb-4">
@@ -66,7 +63,6 @@ export function Patterns() {
             <BrierChart data={data.brier.timeline} />
           </BentoCard>
 
-          {/* BLIND SPOTS */}
           <BentoCard span="half">
             <p className="label mb-4">Blind spots</p>
             {data.blindSpots.length === 0 ? (
@@ -90,7 +86,6 @@ export function Patterns() {
             )}
           </BentoCard>
 
-          {/* REGRET */}
           <BentoCard span="half">
             <p className="label mb-4">Regret rate</p>
             <div className="flex items-baseline gap-2">

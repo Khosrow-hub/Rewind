@@ -5,11 +5,12 @@ type DataPoint = {
   brier: number;
 };
 
-export function BrierChart({ data }: { data: DataPoint[] }) {
-  if (data.length === 0) {
+export function BrierChart({ data }: { data?: DataPoint[] }) {
+  // If data is undefined or empty, show the placeholder
+  if (!data || data.length === 0) {
     return (
       <div className="h-64 flex items-center justify-center text-sm text-inkSoft">
-        Not enough data to plot a trend yet.
+        Not enough data to plot a trend yet. Complete an autopsy to see your progress.
       </div>
     );
   }
