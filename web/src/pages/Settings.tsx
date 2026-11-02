@@ -3,7 +3,7 @@ import { useAuth } from "../features/auth/AuthContext";
 import { useToast } from "../features/toast/ToastContext";
 import { api } from "../lib/api";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom"; // Added
+import { useNavigate } from "react-router-dom";
 
 const API_BASE = "";
 
@@ -17,13 +17,14 @@ export function Settings() {
   const { logout } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
-  const navigate = useNavigate(); // Added
+  const navigate = useNavigate();
   const [isRevoking, setIsRevoking] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false); // Added
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // NEW
 
   const { data, isLoading } = useQuery({
     queryKey: ["sessions"],
-    queryFn: () => api<{ sessions: Session[] }>("/api/auth/sessions"),
+    queryFn: () => api<{ sessions: Session[] }>(`/api/auth/sessions?t=${Date.now()}`),
     staleTime: 0,
     refetchOnMount: "always"
   });
@@ -41,13 +42,7 @@ export function Settings() {
     }
   }
 
-  async function deleteAccount() {
-    const confirmed = window.confirm(
-      "Are you absolutely sure? This will permanently delete your account and every decision you have ever logged. This action cannot be undone."
-    );
-    
-    if (!confirmed) return;
-    
+  async function confirmDelete() {
     setIsDeleting(true);
     try {
       await api("/api/auth/account", { method: "DELETE" });
@@ -56,11 +51,37 @@ export function Settings() {
     } catch (err) {
       showToast("Failed to delete account.", "error");
       setIsDeleting(false);
+      setShowDeleteModal(false);
     }
   }
 
   return (
     <div className="mx-auto max-w-2xl">
+      {/* DELETE CONFIRMATION MODAL */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/20 backdrop-blur-sm">
+          <div className="bento w-full max-w-md shadow-neu-flat bg-cream text-center p-8">
+            <h2 className="text-2xl font-bold tracking-tight text-red-500">Delete account?</h2>
+            <p className="mt-3 text-sm text-inkSoft leading-relaxed">
+              This will permanently delete your account and every decision you have ever logged. 
+              This action cannot be undone.
+            </p>
+            <div className="mt-8 flex flex-col gap-3">
+              <button 
+                onClick={confirmDelete} 
+                disabled={isDeleting}
+                className="btn-primary bg-red-500 text-white shadow-none hover:bg-red-600 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Yes, delete everything"}
+              </button>
+              <button onClick={() => setShowDeleteModal(false)} className="btn-ghost">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
         <p className="mt-1 text-sm text-inkSoft">Manage your account and data.</p>
@@ -106,18 +127,16 @@ export function Settings() {
           <button onClick={logout} className="btn-ghost mt-6">Sign out</button>
         </div>
 
-        {/* NEW: DANGER ZONE */}
         <div className="bento border-red-500/20 bg-red-500/5">
           <h2 className="text-xl font-bold tracking-tight text-red-500">Danger zone</h2>
           <p className="mt-2 text-sm text-inkSoft">
             Permanently delete your account and all associated data. This action cannot be undone.
           </p>
           <button 
-            onClick={deleteAccount} 
-            disabled={isDeleting}
-            className="btn-primary mt-6 bg-red-500 text-white shadow-none hover:bg-red-600 disabled:opacity-50"
+            onClick={() => setShowDeleteModal(true)} 
+            className="btn-primary mt-6 bg-red-500 text-white shadow-none hover:bg-red-600"
           >
-            {isDeleting ? "Deleting..." : "Delete account"}
+            Delete account
           </button>
         </div>
       </div>
