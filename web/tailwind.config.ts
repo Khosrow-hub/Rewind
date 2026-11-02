@@ -11,8 +11,8 @@ const config: Config = {
         line: "var(--color-line)",
         inkSoft: "var(--color-text-soft)",
         inkFaint: "var(--color-text-faint)",
-        accent: "#8F7A5F",      // Bronze for light mode
-        accentHover: "#6B5843", // Darker bronze
+        accent: "#677D6A",      // Forest Green
+        accentHover: "#40534C", // Darker Forest Green
       },
       fontFamily: {
         sans: ["Inter", "Roboto", "system-ui", "sans-serif"],

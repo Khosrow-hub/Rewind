@@ -3,28 +3,28 @@
 @tailwind utilities;
 
 @layer base {
-  /* LIGHT MODE: Sand & Stone */
+  /* LIGHT MODE: Airy Earth */
   :root {
-    --color-bg: #EBE2CC;       /* Lightest */
-    --color-text: #B7B09E;     /* Darkest for contrast */
-    --color-line: rgba(183, 176, 158, 0.15);
-    --color-text-soft: #CFC6B1;
-    --color-text-faint: rgba(183, 176, 158, 0.5);
+    --color-bg: #EBE2CC;       /* Light sand */
+    --color-text: #1A3636;     /* Deepest forest green for text */
+    --color-line: rgba(26, 54, 54, 0.1);
+    --color-text-soft: #40534C; /* Mid-dark green for secondary text */
+    --color-text-faint: rgba(26, 54, 54, 0.4);
     
-    --shadow-light: #FCF9F2;   /* A slightly brighter white for the top-left highlight */
-    --shadow-dark: #DED6C1;    /* The mid-light for the bottom-right shadow */
+    --shadow-light: #FFFFFF;   /* Pure white highlight */
+    --shadow-dark: #DED6C1;    /* Slightly darker sand for shadow */
   }
 
-  /* DARK MODE: Forest & Wood */
+  /* DARK MODE: Rich Forest */
   .dark {
-    --color-bg: #1A3636;       /* Darkest */
-    --color-text: #D6BD98;     /* Lightest */
-    --color-line: rgba(214, 189, 152, 0.1);
-    --color-text-soft: #677D6A;
-    --color-text-faint: rgba(214, 189, 152, 0.4);
+    --color-bg: #1A3636;       /* Deepest forest green */
+    --color-text: #EBE2CC;     /* Light sand for text */
+    --color-line: rgba(235, 226, 204, 0.1);
+    --color-text-soft: #D6BD98; /* Warm wood for secondary text */
+    --color-text-faint: rgba(235, 226, 204, 0.4);
     
-    --shadow-light: #40534C;   /* The mid-dark for the top-left highlight */
-    --shadow-dark: #0F1F1F;    /* Even darker than the bg for the bottom-right shadow */
+    --shadow-light: #40534C;   /* Mid-green highlight */
+    --shadow-dark: #0F1F1F;    /* Almost black for deep shadow */
   }
 
   html, body, #root {
@@ -88,7 +88,6 @@
   }
   .btn-primary:hover {
     color: var(--color-text-soft);
-    box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
   }
   .btn-primary:active {
     box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light);
