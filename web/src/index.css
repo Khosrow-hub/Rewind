@@ -3,28 +3,28 @@
 @tailwind utilities;
 
 @layer base {
-  /* LIGHT MODE: Airy Earth */
+  /* LIGHT MODE: Original Cream */
   :root {
-    --color-bg: #EBE2CC;       /* Light sand */
-    --color-text: #1A3636;     /* Deepest forest green for text */
-    --color-line: rgba(26, 54, 54, 0.1);
-    --color-text-soft: #40534C; /* Mid-dark green for secondary text */
-    --color-text-faint: rgba(26, 54, 54, 0.4);
+    --color-bg: #F0EFEA;       
+    --color-text: #2C3E50;     
+    --color-text-soft: #5D6D7E;
+    --color-text-faint: #AAB7B8;
+    --color-line: transparent; 
     
-    --shadow-light: #FFFFFF;   /* Pure white highlight */
-    --shadow-dark: #DED6C1;    /* Slightly darker sand for shadow */
+    --shadow-light: #FFFFFF;   
+    --shadow-dark: #D1D0C9;    
   }
 
-  /* DARK MODE: Rich Forest */
+  /* DARK MODE: Original Deep Forest */
   .dark {
-    --color-bg: #1A3636;       /* Deepest forest green */
-    --color-text: #EBE2CC;     /* Light sand for text */
-    --color-line: rgba(235, 226, 204, 0.1);
-    --color-text-soft: #D6BD98; /* Warm wood for secondary text */
-    --color-text-faint: rgba(235, 226, 204, 0.4);
-    
-    --shadow-light: #40534C;   /* Mid-green highlight */
-    --shadow-dark: #0F1F1F;    /* Almost black for deep shadow */
+    --color-bg: #1E201E;       
+    --color-text: #ECDFCC;     
+    --color-text-soft: #A3B18A;
+    --color-text-faint: #697565;
+    --color-line: transparent;
+
+    --shadow-light: #2C302C;   
+    --shadow-dark: #121312;    
   }
 
   html, body, #root {
@@ -33,15 +33,10 @@
 
   body {
     @apply bg-cream text-ink font-sans antialiased transition-colors duration-300;
-    font-feature-settings: "cv11", "ss01";
-  }
-
-  ::selection {
-    @apply bg-accent/30 text-ink;
   }
 
   *:focus-visible {
-    outline: 2px solid var(--color-text);
+    outline: 2px solid var(--color-text-soft);
     outline-offset: 4px;
     border-radius: 8px;
   }
