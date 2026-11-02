@@ -4,6 +4,7 @@ import { useCreateDecision } from "../features/decisions/useCreateDecision";
 import { useToast } from "../features/toast/ToastContext";
 import type { Importance } from "../lib/api";
 import { importanceLabel } from "../lib/format";
+import { UpgradeModal } from "../features/decisions/UpgradeModal";
 
 const defaultDays = (importance: Importance) => {
   const map: Record<Importance, number> = {
@@ -19,7 +20,7 @@ export function DecisionNew() {
   const navigate = useNavigate();
   const { mutate, isPending, error } = useCreateDecision();
   const { showToast } = useToast();
-
+  const [showUpgrade, setShowUpgrade] = useState(false);  
   const [title, setTitle] = useState("");
   const [reasoning, setReasoning] = useState("");
   const [expectedOutcome, setExpectedOutcome] = useState("");
@@ -93,8 +94,12 @@ export function DecisionNew() {
           // FIXED REDIRECT PATH
           navigate("/dashboard/decisions");
         },
-        onError: (err: any) => {
-          showToast(err.message || "Failed to save decision.", "error");
+               onError: (err: any) => {
+          if (err.status === 403) {
+            setShowUpgrade(true);
+          } else {
+            showToast(err.message || "Failed to save decision.", "error");
+          }
         }
       }
     );
@@ -378,6 +383,7 @@ export function DecisionNew() {
           </button>
         </div>
       </form>
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} />}
     </div>
   );
 }

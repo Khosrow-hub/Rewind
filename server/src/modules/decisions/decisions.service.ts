@@ -10,6 +10,15 @@ export async function createDecision(userId: string, input: CreateDecisionInput)
     throw new Error("INVALID_CHOSEN_OPTION");
   }
 
+  // ENFORCE FREE TIER LIMIT (5 active pending decisions)
+  const activeCount = await prisma.decision.count({
+    where: { userId, status: "PENDING" }
+  });
+  
+  if (activeCount >= 5) {
+    throw new Error("LIMIT_REACHED");
+  }
+
   const decision = await prisma.$transaction(async (tx) => {
     const created = await tx.decision.create({
       data: {
