@@ -7,17 +7,6 @@ export function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Only show the custom cursor on public pages
-    const isPublicPage = 
-      window.location.pathname === "/" || 
-      window.location.pathname === "/auth";
-    
-    if (isPublicPage) {
-      document.body.classList.add("hide-default-cursor");
-    } else {
-      document.body.classList.remove("hide-default-cursor");
-    }
-
     const updateMousePosition = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
       if (!isVisible) setIsVisible(true);
@@ -25,11 +14,13 @@ export function CustomCursor() {
 
     const handleMouseOver = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+      // Expand the cursor if hovering over a link, button, or something clickable
       if (
         target.tagName.toLowerCase() === "a" ||
         target.tagName.toLowerCase() === "button" ||
         target.closest("a") ||
-        target.closest("button")
+        target.closest("button") ||
+        target.classList.contains("bento-interactive")
       ) {
         setIsHovering(true);
       } else {
@@ -43,7 +34,6 @@ export function CustomCursor() {
     return () => {
       window.removeEventListener("mousemove", updateMousePosition);
       window.removeEventListener("mouseover", handleMouseOver);
-      document.body.classList.remove("hide-default-cursor");
     };
   }, [isVisible]);
 
