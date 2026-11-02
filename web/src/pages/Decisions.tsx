@@ -24,7 +24,8 @@ export function Decisions() {
             Log the bet, set the review date, then come back when it is time.
           </p>
         </div>
-        <Link to="/decisions/new" className="btn-primary">
+        {/* FIXED LINK HERE */}
+        <Link to="/dashboard/decisions/new" className="btn-primary">
           New decision
         </Link>
       </header>
@@ -54,7 +55,8 @@ export function Decisions() {
             review date, and Rewind brings it back to you when the outcome is
             known. That is the loop.
           </p>
-          <Link to="/decisions/new" className="btn-primary mt-8">
+          {/* FIXED LINK HERE */}
+          <Link to="/dashboard/decisions/new" className="btn-primary mt-8">
             Create your first decision
           </Link>
         </div>

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom"; // Added Link
 import { useDecisions } from "../features/decisions/useDecisions";
 import { DecisionCard } from "../features/decisions/DecisionCard";
 import type { DecisionTag } from "../lib/api";
@@ -8,7 +9,6 @@ export function Library() {
   const [search, setSearch] = useState("");
   const [tagFilter, setTagFilter] = useState("all");
 
-  // Get a unique list of all tags the user has ever used
   const allTags = useMemo(() => {
     if (!data) return [];
     const tags = new Set<string>();
@@ -18,7 +18,6 @@ export function Library() {
     return Array.from(tags).sort();
   }, [data]);
 
-  // Filter the decisions based on search text and selected tag
   const filtered = useMemo(() => {
     if (!data) return [];
     return data.decisions.filter((d) => {
@@ -44,9 +43,12 @@ export function Library() {
             Your searchable database of past decisions.
           </p>
         </div>
+        {/* Added New Decision Button */}
+        <Link to="/dashboard/decisions/new" className="btn-primary">
+          New decision
+        </Link>
       </header>
 
-      {/* SEARCH AND FILTER BAR */}
       <div className="mb-8 flex flex-col md:flex-row gap-4">
         <input
           type="search"
@@ -69,7 +71,6 @@ export function Library() {
         </select>
       </div>
 
-      {/* RESULTS */}
       {isLoading && <p className="text-sm text-inkSoft">Loading library...</p>}
       {isError && <p className="text-sm text-ink">Could not load library.</p>}
 
